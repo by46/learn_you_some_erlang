@@ -1,6 +1,6 @@
 什么是模块
 ==
-![](images/ch1/modules.png)
+![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch1/circular-dependencies.png?raw=true)
 
 Working with the interactive shell is often considered a vital part of using dynamic programming languages. It is useful to test all kinds of code and programs. Most of the basic data types of Erlang were used without even needing to open a text editor or saving files. You could drop your keyboard, go play ball outside and call it a day, but you would be a terrible Erlang programmer if you stopped right there. Code needs to be saved somewhere to be used!
 
