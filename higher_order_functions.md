@@ -6,9 +6,15 @@ Let's get functional
 
 An important part of all functional programming languages is the ability to take a function you defined and then pass it as a parameter to another function. This in turn binds that function parameter to a variable which can be used like any other variable within the function. A function that can accept other functions transported around that way is named a higher order function. Higher order functions are a powerful means of abstraction and one of the best tools to master in Erlang.
 
+所有函数式编程语言很重要的一部分是接受自定义函数，并把它作为参数传递给其他函数的能力。这个过程会绑定函数参数到一个变量，并可以像该函数中其他变量一样使用。一个函数接受其他函数作为输入参数， 该函数被称为高阶函数。高阶函数是很强大的抽象方法， 同时也是Erlang中非常强大的工具之一。
+
 Again, this a concept rooted in mathematics, mainly lambda calculus. I won't go into much detail about lambda calculus because some people have a hard time grasping it and it's a bit out of scope. However, I'll define it briefly as a system where everything is a function, even numbers. Because everything is a function, functions must accept other functions as parameters and can operate on them with even more functions!
 
+此外， 来源于数学的概念， λ演算。我不会探究太多关于λ演算的细节， 因为有读者可能需要花费很多时间才能理解它，而且它也超出来我们的范围。 然而，我将简短地把它定义为一个系统，任何东西都是函数，甚至是数字也是函数的系统。由于任何东西都是函数， 所以函数必须接受其他函数作为参数，并且和更多函数一起工作。
+
 Alright, this might be a little bit weird, so let's start with an example:
+
+好吧， 这听起来有些不可思议，让我们来看一个例子：
 
 ```
 -module(hhfuns).
@@ -21,6 +27,8 @@ add(X,Y) -> X() + Y().
 ```
 
 Now open the Erlang shell, compile the module and get going:
+
+打开Erlang shell， 编译模块，开始下面的输入：
 
 ```
 1> c(hhfuns).
@@ -37,9 +45,15 @@ in function  hhfuns:add/2
 
 Confusing? Not so much, once you know how it works (isn't that always the case?) In command 2, the atoms one and two are passed to add/2, which then uses both atoms as function names (X() + Y()). If function names are written without a parameter list then those names are interpreted as atoms, and atoms can not be functions, so the call fails. This is the reason why expression 3 also fails: the values 1 and 2 can not be called as functions either, and functions are what we need!
 
+困惑？一旦你知道第二条命令是如何工作，你就不会再困惑了。在第二条命令里， 原子one 和two 被传递给add/2函数，然后这个两个原子都被作为函数名进行调用(X() + Y())。如果函数名没有写参数列表，那么这些名字被解释为原子，原子不能作为函数，所以调用失败。第三条命令调用失败的原因是：数值1和2同样不能作为函数来调用， 所以函数就是我们所需要的。
+
 This is why a new notation has to be added to the language in order to let you pass functions from outside a module. This is what fun Module:Function/Arity is: it tells the VM to use that specific function, and then bind it to a variable.
 
+为了让你能从模块之外传递函数，所以一个新的标记被加入erlang中。就是fun Module:Function/Arity, 它告诉VM使用那个函数，并绑定到一个变量。
+
 So what are the gains of using functions in that manner? Well a little example might be needed in order to understand it. We'll add a few functions to hhfuns that work recursively over a list to add or subtract one from each integer of a list:
+
+我们能从这种使用函数的方式中获得什么？为了理解它，我们需要一个小小的例子。我们向hhfuns模块中添加几个函数，用于递归地对一个整数列表中的每个元素进行加1或减1操作。
 
 ```
 increment([]) -> [];
@@ -51,6 +65,8 @@ decrement([H|T]) -> [H-1|decrement(T)].
 
 See how similar these functions are? They basically do the same thing: they cycle through a list, apply a function on each element (+ or -) and then call themselves again. There is almost nothing changing in that code: only the applied function and the recursive call are different. The core of a recursive call on a list like that is always the same. We'll abstract all the similar parts in a single function (map/2) that will take another function as an argument:
 
+这些函数是不是如此相似？他们基本完成同样的事情：他们以此遍历整个列表， 对每个元素应用一个函数(+ 或 -)，然后调用自己。两段代码基本上没有什么变化：除应用的函数和递归调用不同意外。像那样递归遍历列表的代码看上总是一样的。 我们将会抽象所有相似的部分到一个单独函数(map/2)，它接受另外一个函数作为参数：
+
 ```
 map(_, []) -> [];
 map(F, [H|T]) -> [F(H)|map(F,T)].
@@ -60,6 +76,7 @@ decr(X) -> X - 1.
 ```
 
 Which can then be tested in the shell:
+
 
 ```
 1> c(hhfuns).
@@ -78,10 +95,14 @@ Which can then be tested in the shell:
 
 Here the results are the same, but you have just created a very smart abstraction! Every time you will want to apply a function to each element of a list, you only have to call map/2 with your function as a parameter. However, it is a bit annoying to have to put every function we want to pass as a parameter to map/2 in a module, name it, export it, then compile it, etc. In fact it's plainly unpractical. What we need are functions that can be declared on the fly...
 
+虽然两种方式的结果是一样，但是你已经创建了一个非常智能的抽象！任何时候，你想对列表中每个元素应用某个函数，你只要使用你的函数作为参数调用map/2.  但是， 让人讨厌的是必须把要作为参数传递的函数放入一个模块中，为他命名，导出它，编译它等等。 实际上，这根本是不切实际的。我们所需要的函数可以很简单的被定义。
+
 Anonymous functions
 ---
 
 Anonymous functions, or funs, address that problem by letting you declare a special kind of function inline, without naming them. They can do pretty much everything normal functions can do, except calling themselves recursively (how could they do it if they are anonymous?) Their syntax is:
+
+匿名函数或者函数，通过让你声明一种特殊的不用命名的内联函数来解决上面提到的问题。他们可以完成几乎正常函数能完成的事情，除了递归调用自己以外(如果他们是匿名的，他们如何能调用自己呢？)他们语法：
 
 ```
 fun(Args1) ->
@@ -108,7 +129,11 @@ a
 
 And now you're seeing one of the things that make people like functional programming so much: the ability to make abstractions on a very low level of code. Basic concepts such as looping can thus be ignored, letting you focus on what is done rather than how to do it.
 
+你现在已经看到让人们如此喜欢函数式编程的事情：在很低的级别，对代码做抽象的能力。 例如循环这样的基本概念可以被忽略，让你关注是做些什么,而不是如何去做。
+
 Anonymous functions are already pretty dandy for such abstractions but they still have more hidden powers:
+
+匿名函数已经是相当高级的抽象，但他们仍然有更多隐藏的能力。
 
 ```
 11> PrepareAlarm = fun(Room) ->
