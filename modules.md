@@ -1,5 +1,6 @@
 什么是模块
-==
+===
+
 ![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch1/circular-dependencies.png?raw=true)
 
 Working with the interactive shell is often considered a vital part of using dynamic programming languages. It is useful to test all kinds of code and programs. Most of the basic data types of Erlang were used without even needing to open a text editor or saving files. You could drop your keyboard, go play ball outside and call it a day, but you would be a terrible Erlang programmer if you stopped right there. Code needs to be saved somewhere to be used!
@@ -42,10 +43,11 @@ There is a large variety of module attributes currently used in Erlang code acro
 
 如今，在Erlang代码中使用了大量的模块属性，事实上， 你甚至可以任意定义你专属的属性。也有一些出现频率很高的预定义属性。 所有的模块属性都按照-Name(Attribute).的形式。 其中只有下列属性是可编译模块所必须的：
 ```
-	-module(Name).
-```	
-	他总是文件的第一个属性， 对于这种情况， 有一个很好的原因：它是当前模块的名字，也是用于从其他模块调用函数的名字， M:F(A)的形式调用
-	
+-module(Name).
+```
+
+他总是文件的第一个属性， 对于这种情况， 有一个很好的原因：它是当前模块的名字，也是用于从其他模块调用函数的名字， M:F(A)的形式调用
+
 It's time to code already! Our first module will be very simple and useless. Open your text editor and type in the following, then save it under useless.erl:
 
 是时候开始编程了，我们的第一个模块将会非常简单，并且没有多大用处。 打开你的文本编辑器， 输入如下代码， 然后保存在userless.erl。
@@ -87,15 +89,18 @@ The syntax of a function follows the form Name(Args) -> Body., where Name has to
 	%% io:format/1 is the standard function used to output text.
 	hello() ->
 		io:format("Hello, world!~n")
-```		
+```
+
 What we see from this function is that comments are single-line only and begin with a % sign (using %% is purely a question of style.) The hello/0 function also demonstrates how to call functions from foreign modules inside yours. In this case, io:format/1 is the standard function to output text, as written in the comments.
 
 从greeting函数中， 我们可以看到只能通过前导%单行注释， 使用%%，纯属编程风格不同而已。hello/0函数展示了如何调用外部模块函数。这个例子中， io:format/1是一个用于输出文本的准函数。
+
 ```
 	greet_and_add_two(X) ->
 		hell(),
 		add(X, 2).
-```		
+```
+	
 ![](images/ch1/imports.png)
 Do not forget to add `greet_and_add_two/1` to the exported function list. The calls to `hello/0` and `add/2` don't need to have the module name prepended to them because they were declared in the module itself.
 
@@ -104,9 +109,9 @@ Do not forget to add `greet_and_add_two/1` to the exported function list. The ca
 Had you wanted to be able to call io:format/1 in the same manner as add/2 or any other function defined within the module, you could have added the following module attribute at the beginning of the file: -import(io, [format/1]).. Then you could have called `format("Hello, World!~n")`. directly. More generally, the -import attribute follows this recipe:
 
 如果你想以调用`add/2`的方式使用`io:format`, 那你必须在文件开始处，使用`-import(io, [format/1]).`的方式导入外部函数。然后， 你就可以类似`format("hello, world!~n")`方式使用函数。-import属性遵照如下的格式。
-
+```
 	-import(Module, [Function1/Arity, …, FunctionN/Arity]).
-	
+```
 Importing a function is not much more than a shortcut for programmers when writing their code. Erlang programmers are often discouraged from using the `-import` attribute as some people find it reduces the readability of code. In the case of`io:format/2`, the function`io_lib:format/2` also exists. Finding which one is used means going to the top of the file to see from which module it was imported. Consequently, leaving the module name in is considered good practice. Usually, the only functions you'll see imported come from the lists module: its functions are used with a higher frequency than those from most other modules.
 
 导入一个函数非常简单。Erlang程序员通常不使用import属性，因为有人觉得它降低了可读性。在io:format的例子中， 同时也存在io_lib:format/2函数。要确定使用的那个函数，必须要回到文件的顶部查看到底导入是那个函数。因此，不使用模块被认为是一种不错的实践。通常， 唯一可以放入import属性中的函数来自lists模块， 是因为他们使用非常频繁。
@@ -128,7 +133,7 @@ greet_and_add_two(X) ->
 	hello(),
 	add(X, 2).
 	
-```	
+```
 We are done with the "useless" module. You can save the file under the name useless.erl. The file name should be the module name as defined in the -module attribute, followed by '.erl', which is the standard Erlang source extension.
 
 我们已经完成了useless，你可以保存为useless.erl, 文件的名字必须和模块的名字一样，然后加上".erl"作为文件扩展名。
