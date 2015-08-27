@@ -34,11 +34,11 @@ Now open the Erlang shell, compile the module and get going:
 1> c(hhfuns).
 {ok, hhfuns}
 2> hhfuns:add(one,two).
-** exception error: bad function one
-in function  hhfuns:add/2
+    ** exception error: bad function one
+        in function  hhfuns:add/2
 3> hhfuns:add(1,2).
-** exception error: bad function 1
-in function  hhfuns:add/2
+    ** exception error: bad function 1
+        in function  hhfuns:add/2
 4> hhfuns:add(fun hhfuns:one/0, fun hhfuns:two/0).
 3
 ```
@@ -106,12 +106,12 @@ Anonymous functions, or funs, address that problem by letting you declare a spec
 
 ```
 fun(Args1) ->
-Expression1, Exp2, ..., ExpN;
-(Args2) ->
-Expression1, Exp2, ..., ExpN;
-(Args3) ->
-Expression1, Exp2, ..., ExpN
-end
+        Expression1, Exp2, ..., ExpN;
+    (Args2) ->
+        Expression1, Exp2, ..., ExpN;
+    (Args3) ->
+        Expression1, Exp2, ..., ExpN
+    end
 ```
 
 And can be used the following way:
@@ -157,19 +157,19 @@ To understand closures, one must first understand scope. A function's scope can 
 
 ```
 base(A) ->
-B = A + 1,
-F = fun() -> A * B end,
-F().
+    B = A + 1,
+    F = fun() -> A * B end,
+    F().
 ```
 
 B and A are still bound to base/1's scope, so the function F can still access them. This is because F inherits base/1's scope. Like most kinds of real-life inheritance, the parents can't get what the children have:
 
 ```
 base(A) ->
-B = A + 1,
-F = fun() -> C = A * B end,
-F(),
-C.
+    B = A + 1,
+    F = fun() -> C = A * B end,
+    F(),
+    C.
 ```
 
 In this version of the function, B is still equal to A + 1 and F will still execute fine. However, the variable C is only in the scope of the anonymous function in F. When base/1 tries to access C's value on the last line, it only finds an unbound variable. In fact, had you tried to compile this function, the compiler would have thrown a fit. Inheritance only goes one way.
@@ -178,11 +178,11 @@ It is important to note that the inherited scope follows the anonymous function 
 
 ```
 a() ->
-Secret = "pony",
-fun() -> Secret end.
+    Secret = "pony",
+    fun() -> Secret end.
  
 b(F) ->
-"a/0's password is "++F().
+    "a/0's password is "++F().
 ```
 
 Then if we compile it:
@@ -215,16 +215,16 @@ A little trap you might fall into when writing anonymous functions is when you t
 
 ```
 base() ->
-A = 1,
-(fun() -> A = 2 end)().
+    A = 1,
+    (fun() -> A = 2 end)().
 ```
 
 This will declare an anonymous function and then run it. As the anonymous function inherits base/0's scope, trying to use the = operator compares 2 with the variable A (bound to 1). This is guaranteed to fail. However it is possible to redefine the variable if it's done in the nested function's head:
 
 ```
 base() ->
-A = 1,
-(fun(A) -> A = 2 end)(2).
+    A = 1,
+    (fun(A) -> A = 2 end)(2).
 ```
 
 And this works. If you try to compile it, you'll get a warning about shadowing ("Warning: variable 'A' shadowed in 'fun'"). Shadowing is the term used to describe the act of defining a new variable that has the same name as one that was in the parent scope. This is there to prevent some mistakes (usually rightly so), so you might want to consider renaming your variables in these circumstances.
@@ -387,13 +387,13 @@ map2(F,L) ->
 reverse(fold(fun(X,Acc) -> [F(X)|Acc] end, [], L)).
  
 filter2(Pred, L) ->
-F = fun(X,Acc) ->
-case Pred(X) of
-true  -> [X|Acc];
-false -> Acc
-end
-end,
-reverse(fold(F, [], L)).
+    F = fun(X,Acc) ->
+        case Pred(X) of
+            true  -> [X|Acc];
+            false -> Acc
+        end
+    end,
+    reverse(fold(F, [], L)).
 ```
 
 And they all work the same as those written by hand before. How's that for powerful abstractions?
