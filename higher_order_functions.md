@@ -153,7 +153,11 @@ ok
 
 Hold the phone Batman! What's going on here? Well, first of all, we declare an anonymous function assigned to PrepareAlarm. This function has not run yet: it only gets executed when PrepareAlarm("bathroom"). is called. Batman with a manly mustache At that point, the call to io:format/2 is evaluated and the "Alarm set" text is output. The second expression (another anonymous function) is returned to the caller and then assigned to AlarmReady. Note that in this function, the variable Room's value is taken from the 'parent' function (PrepareAlarm). This is related to a concept called closures.
 
+“蝙蝠侠快接电话！” 到底发生什么事了？好的， 首先， 我们声明了一个匿名函数，并赋值给PrepareAlarm变量。该函数还还有运行: 当调用PrepareAlarm("bothroom")该函数才会执行。 当执行PrepareAlarm函数是， io:format/2被求值，并且"Alarm set"文本被输出。 第二个表达式(另外一个匿名函数)被返回给调用者， 并且赋值给AlarmReady变量。注意，在这个函数中，变量Room的值是从父函数(PrepareAlarm)中获取的。这个被称为闭包。
+
 To understand closures, one must first understand scope. A function's scope can be imagined as the place where all the variables and their values are stored. In the function base(A) -> B = A + 1., A and B are both defined to be part of base/1's scope. This means that anywhere inside base/1, you can refer to A and B and expect a value to be bound to them. And when I say 'anywhere', I ain't kidding, kid; this includes anonymous functions too:
+
+为了理解闭包，首先必须理解作用域。一个函数的作用域可以被想象为保存所有变量及其变量值的地方。 在函数`base(A) -> B = A + 1.`中， 变量A和变量B都被定义在base/1的作用域中。这意味着在`base/1`函数中的任何地方， 你都可以引用变量A和变量B，并获取绑定到他们的值。我说"在任何地方"，不是在开玩笑；在匿名函数中同样可以访问:
 
 ```
 base(A) ->
@@ -163,6 +167,8 @@ base(A) ->
 ```
 
 B and A are still bound to base/1's scope, so the function F can still access them. This is because F inherits base/1's scope. Like most kinds of real-life inheritance, the parents can't get what the children have:
+
+变量B和变量A始终绑定到`base/1`的作用域，所以函数F也可以访问他们。 这是因为函数F继承了`base/1`的作用域。像所有类型的现实继承一样， 父类不能获取子类所拥有的:
 
 ```
 base(A) ->
@@ -174,7 +180,11 @@ base(A) ->
 
 In this version of the function, B is still equal to A + 1 and F will still execute fine. However, the variable C is only in the scope of the anonymous function in F. When base/1 tries to access C's value on the last line, it only finds an unbound variable. In fact, had you tried to compile this function, the compiler would have thrown a fit. Inheritance only goes one way.
 
+在这个版本的函数中， 变量B始终等于变量A + 1，并且函数F始终执行良好。 然而， 变量C只包含在匿名函数F的作用域中。当函数`base/1`在最后一行代码中尝试访问变量C的值是，只找到了一个未绑定的变量。事实上，如果你尝试编译该函数，编译goes one way器会发出警告。继承是单向的。
+
 It is important to note that the inherited scope follows the anonymous function wherever it is, even when it is passed to another function:
+
+注意：继承的作用域会和匿名函数关联，即使当匿名函数被传递给其他函数:
 
 ```
 a() ->
@@ -186,6 +196,7 @@ b(F) ->
 ```
 
 Then if we compile it:
+如果我们编译它：
 
 ```
 14> c(hhfuns).
@@ -196,7 +207,12 @@ Then if we compile it:
 
 Who told a/0's password? Well, a/0 did. While the anonymous function has a/0's scope when it's declared in there, it can still carry it when executed in b/1, as explained above. This is very useful because it lets us carry around parameters and content out of its original context, where the whole context itself are not needed anymore (exactly like we did with Batman in a previous example).
 
+谁公布了`a/0`的密码？好的，是`a/0`自己公布的。 当匿名函数被定义是，它就拥有了`a/0`的作用域。正如上面解释的，直到该匿名函数在 `b/1`中执行时，它一直持有该作用域。这个非常有用，因为它可以让我们
+把一些参数和内容搬离它原始的上下文，为什么只是有一些呢， 是因为匿名函数不需要整个上下文(实际上就像上一个蝙蝠侠的例子中展现的一样)。
+
 You're most likely to use anonymous functions to carry state around when you have functions defined that take many arguments, but you have a constant one:
+
+当你定义了一个接受多个参数的函数， 但是其中一个参数是一个常量，那么你很有可能利用匿名函数来保持状态：
 
 ```
 16> math:pow(5,2).
