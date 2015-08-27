@@ -1,2 +1,9 @@
-# learn_you_some_erlang
-translate of learn you some erlang
+learn_you_some_erlang
+===
+Content
+---
+1. Modules
+2. Syntax in Functions
+3. Types
+4. Recursion
+5. Event Handlers
