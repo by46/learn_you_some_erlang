@@ -102,7 +102,7 @@ Anonymous functions
 
 Anonymous functions, or funs, address that problem by letting you declare a special kind of function inline, without naming them. They can do pretty much everything normal functions can do, except calling themselves recursively (how could they do it if they are anonymous?) Their syntax is:
 
-匿名函数或者函数，通过让你声明一种特殊的不用命名的内联函数来解决上面提到的问题。他们可以完成几乎正常函数能完成的事情，除了递归调用自己以外(如果他们是匿名的，他们如何能调用自己呢？)他们语法：
+匿名函数或者函数，通过让你声明一种特殊的不用命名的内联函数来解决上面提到的问题。他们几乎可以完成正常函数所能完成的所有事情，除了递归调用自己以外(如果他们是匿名的，他们如何能调用自己呢？)，他们语法：
 
 ```
 fun(Args1) ->
