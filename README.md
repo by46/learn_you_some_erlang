@@ -1,4 +1,4 @@
-learn_you_some_erlang
+Learn you some erlang
 ===
 Content
 ---

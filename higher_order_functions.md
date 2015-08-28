@@ -227,7 +227,12 @@ You're most likely to use anonymous functions to carry state around when you hav
 
 By wrapping the call to math:pow/2 inside an anonymous function with the Base variable bound in its scope, we made it possible to have each of the calls to PowerOfTwo in hhfuns:map/2 use the integers from the list as the exponents of our base.
 
+*need to adjust*
+通过将对`math:pow/2`的调用和Base变量的绑定包装在匿名函数中，我就可以使用列表中的元素来对Base变量做幂计算。
+
 A little trap you might fall into when writing anonymous functions is when you try to redefine the scope:
+
+当你编写一个尝试重定义作用域的匿名函数时， 你很有可能掉入一个陷阱：
 
 ```
 base() ->
@@ -237,6 +242,8 @@ base() ->
 
 This will declare an anonymous function and then run it. As the anonymous function inherits base/0's scope, trying to use the = operator compares 2 with the variable A (bound to 1). This is guaranteed to fail. However it is possible to redefine the variable if it's done in the nested function's head:
 
+上面的代码表示要声明一个匿名函数，紧接着运行它。由于匿名函数继承了`base/0`的作用域， 尝试使用`=`操作符比较数值2和变量A(绑定了数值1)。它一定会失败。然而是有可能重定义变量的，只是需要在内嵌的函数头中完成：
+
 ```
 base() ->
     A = 1,
@@ -245,11 +252,18 @@ base() ->
 
 And this works. If you try to compile it, you'll get a warning about shadowing ("Warning: variable 'A' shadowed in 'fun'"). Shadowing is the term used to describe the act of defining a new variable that has the same name as one that was in the parent scope. This is there to prevent some mistakes (usually rightly so), so you might want to consider renaming your variables in these circumstances.
 
+这样就可以重定义变量，如果你尝试编译它， 你会收到一条关于shadowing的警告("Warning: variable 'A' shadowed in 'fun'"). 
+shadowing是用于描述一种行为的词汇，这种行为是定义了一个新的变量，但是这个变量和父作用域的变量拥有相同的名字。这是为了防止一些错误，所以你应该考虑在这种场景下重命名你的变量。
+
 
 Update:
 Starting with version 17.0, the language supports using anonymous functions with an internal name. That's right, anonymous but named functions.
 
+从opt 17.0开始，erlang支持使用一个内部名字来命名匿名函数，没错，匿名却有名字的函数。
+
 The trick is that the name is visible only within the function's scope, not outside of it. The main advantage of this is that it makes it possible to define anonymous recursive functions. For example, we could make an anonymous function that keeps being loud forever:
+
+窍门是函数名只在函数作用域内可见， 在函数作用域就不可见。主要的好处是使定义匿名递归函数成为可能。你可以顶一个永远运行的匿名函数：
 
 ```
 18> f(PrepareAlarm), f(AlarmReady).
@@ -275,13 +289,19 @@ Alarm tripped in bathroom! Call Batman!
 
 The Loop variable refers to the anonymous function itself, and within that scope, will be usable as any other similar variable pointing to an anonymous function. This should generally make a lot of operations in the shell a lot less painful moving on forward.
 
+变量Loop引用匿名函数本身，并在该作用域中，同其他类似的变量，Loop指向匿名函数。这将减少很多shell的操作。
+
 We'll set the anonymous function theory aside a bit and we'll explore more common abstractions to avoid having to write more recursive functions, like I promised at the end of the previous chapter.
+
+把匿名函数理论放置一边，我们将浏览更多常见的抽象，以避免编写更多的递归函数， 就像我在上周结尾是做出的承诺。
 
 Maps, filters, folds and more
 ---
 ![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch5/erland.png?raw=true)
 
 At the beginning of this chapter, I briefly showed how to abstract away two similar functions to get a map/2 function. I also affirmed that such a function could be used for any list where we want to act on each element. The function was the following:
+
+在本章开始， 我简单地展示了如何抽象两个类似的函数为map/2函数。 我可以保证这样一个函数可以使用任何一个列表。函数如下：
 
 ```
 map(_, []) -> [];
@@ -290,40 +310,46 @@ map(F, [H|T]) -> [F(H)|map(F,T)].
 
 However, there are many other similar abstractions to build from commonly occurring recursive functions. Let's first take a look at these two functions:
 
+然而， 可以从常见递归函数构建更多的类似抽象函数。让我们先看看这两个函数：
+
 ```
 %% only keep even numbers
 even(L) -> lists:reverse(even(L,[])).
  
 even([], Acc) -> Acc;
 even([H|T], Acc) when H rem 2 == 0 ->
-even(T, [H|Acc]);
+    even(T, [H|Acc]);
 even([_|T], Acc) ->
-even(T, Acc).
+    even(T, Acc).
  
 %% only keep men older than 60
 old_men(L) -> lists:reverse(old_men(L,[])).
  
 old_men([], Acc) -> Acc;
 old_men([Person = {male, Age}|People], Acc) when Age > 60 ->
-old_men(People, [Person|Acc]);
+    old_men(People, [Person|Acc]);
 old_men([_|People], Acc) ->
-old_men(People, Acc).
+    old_men(People, Acc).
 ```
 
 The first one takes a list of numbers and returns only those that are even. The second one goes through a list of people of the form {Gender, Age} and only keeps those that are males over 60. The similarities are a bit harder to find here, but we've got some common points. Both functions operate on lists and have the same objective of keeping elements that succeed some test (also a predicate) and then drop the others. From this generalization we can extract all the useful information we need and abstract them away:
+
+第一个函数接受一个整型列表， 只返回所有的偶数。第二个函数遍历由{Gender, Age}元组组成的列表，并只返回大于60的女性记录。也许相似之处很难发现，但是我们会发现一些共同之处。两个函数都是操作一个列表，留下那些条件测试成功的元素， 丢弃其他的。从这个概述中我们提取出我们需要的有用信息，并抽象他们：
 
 ```
 filter(Pred, L) -> lists:reverse(filter(Pred, L,[])).
  
 filter(_, [], Acc) -> Acc;
 filter(Pred, [H|T], Acc) ->
-case Pred(H) of
-true  -> filter(Pred, T, [H|Acc]);
-false -> filter(Pred, T, Acc)
-end.
+    case Pred(H) of
+        true  -> filter(Pred, T, [H|Acc]);
+        false -> filter(Pred, T, Acc)
+    end.
 ```
 
 To use the filtering function we now only need to get the test outside of the function. Compile the hhfuns module and try it:
+
+通过使用过滤函数，我现在只需要在函数外部做条件测试。 编译这hhfuns模块并测试它：
 
 ```
 1> c(hhfuns).
@@ -340,7 +366,11 @@ To use the filtering function we now only need to get the test outside of the fu
 
 These two examples show that with the use of the filter/2 function, the programmer only has to worry about producing the predicate and the list. The act of cycling through the list to throw out unwanted items is no longer necessary to think about. This is one important thing about abstracting functional code: try to get rid of what's always the same and let the programmer supply in the parts that change.
 
+这两个例子展示了通过使用`filter/2`函数，程序员仅仅需要关心如何产生谓词函数和列表。遍历整个并丢弃不需要的元素的行为已经不再需要考虑了。抽象功能代码最重要的事情是：尝试剔除所有不变的地方，只让程序员编程变换的部分。
+
 In the previous chapter, another kind of recursive manipulation we applied on lists was to look at every element of a list one after the other and reduce them to a single answer. This is called a fold and can be used on the following functions:
+
+在前一章中， 我们应用在列表的另外一类递归操作是，依次遍历列表中的每个元素，减少到一个元素。这个过程称为fold， 可以在下面函数中使用：
 
 ```
 %% find the maximum of a list
