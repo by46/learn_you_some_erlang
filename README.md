@@ -7,4 +7,5 @@ Content
 3. Types(types.md)
 4. Recursion(recursion.md)
 5. Higher Order Functions(higher_order_functions.md)
+6. Errors and Exceptions(errors_and_exceptions.md)
 16. Event Handlers(event_handlers.md)
