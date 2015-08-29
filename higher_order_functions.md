@@ -394,12 +394,15 @@ sum([], Sum) -> Sum;
 sum([H|T], Sum) -> sum(T, H+Sum).
 ```
 
-A playing card with 'Joker' replaced by 'Foldr'. The joker has huge glasses, a hook and hairy legs
 To find how the fold should behave, we've got to find all the common points of these actions and then what is different. As mentioned above, we always have a reduction from a list to a single value. Consequently, our fold should only consider iterating while keeping a single item, no list-building needed. Then we need to ignore the guards, because they're not always there: these need to be in the user's function. In this regard, our folding function will probably look a lot like sum.
+
+为了找出`fold`是如何运作的，我们不得不找出这些动作的所有共同点，然后确定他们不同之处。正如上文提到的， 我们总是从列表缩减为单值。因此，我们fold过程只需要考虑进行迭代时如何持有一个单值，而不是构建一个列表。我们需要忽略所有的Guard， 因为他们不总是需要：他们应该包含在用户定义的函数中。就这样一点而言，我们的fold函数很像是求和运算。
 
 ![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch5/foldr.png?raw=true)
 
 A subtle element of all three functions that wasn't mentioned yet is that every function needs to have an initial value to start counting with. In the case of sum/2, we use 0 as we're doing addition and given X = X + 0, the value is neutral and we can't mess up the calculation by starting there. If we were doing multiplication we'd use 1 given X = X * 1. The functions min/1 and max/1 can't have a default starting value: if the list was only negative numbers and we started at 0, the answer would be wrong. As such, we need to use the first element of the list as a starting point. Sadly, we can't always decide this way, so we'll leave that decision to the programmer. By taking all these elements, we can build the following abstraction:
+
+这三个函数另外一个共同之处没有提到，那就是每个函数同需要一个初始值。在`sum/2`中， 我们使用数值0来参与加法计算，数值0是中性的，使用它我们不会污染计算结果。如果是乘法计算，我们就使用数值1作为初始值。`min/1`和`max/1`函数不需要一个默认值：如果列表中只包含负数，并使用数值0作为起始值，那么这个结果就不正确了。所以，我们需要使用列表首元素作为起始点。很遗憾，我们不是总能通过这种方式确定初始值，所以我们把这个判断留给程序自己确定。通过总结这些所有要素，我们可以构建如下抽象：
 
 ```
 fold(_, Start, []) -> Start;
@@ -423,14 +426,18 @@ And when tried:
 
 Pretty much any function you can think of that reduces lists to 1 element can be expressed as a fold.
 
+几乎任何将列表归纳为单值的函数都可以表示为fold。
+
 What's funny there is that you can represent an accumulator as a single element (or a single variable), and an accumulator can be a list. Therefore, we can use a fold to build a list. This means fold is universal in the sense that you can implement pretty much any other recursive function on lists with a fold, even map and filter:
+
+有趣的是你可以把累加器看作是一个单值，也可以看作是一个列表。因此，我们可以使用fold来构建列表。这就意味着在这类场景中fold是通用的， 你可以使用fold来实现作用于列表的几乎任何其他递归函数，甚至包括map 和 filter:
 
 ```
 reverse(L) ->
-fold(fun(X,Acc) -> [X|Acc] end, [], L).
+    fold(fun(X,Acc) -> [X|Acc] end, [], L).
  
 map2(F,L) ->
-reverse(fold(fun(X,Acc) -> [F(X)|Acc] end, [], L)).
+    reverse(fold(fun(X,Acc) -> [F(X)|Acc] end, [], L)).
  
 filter2(Pred, L) ->
     F = fun(X,Acc) ->
@@ -444,6 +451,12 @@ filter2(Pred, L) ->
 
 And they all work the same as those written by hand before. How's that for powerful abstractions?
 
+和前面的实现一样，他们工作良好。
+
 Map, filters and folds are only one of many abstractions over lists provided by the Erlang standard library (see lists:map/2, lists:filter/2, lists:foldl/3 and lists:foldr/3). Other functions include all/2 and any/2 which both take a predicate and test if all the elements return true or if at least one of them returns true, respectively. Then you have dropwhile/2 that will ignore elements of a list until it finds one that fit a certain predicate, its opposite, takewhile/2, that will keep all elements until there is one that doesn't return true to the predicate. A complimentary function to the two previous ones is partition/2, which will take a list and return two: one that has the terms which satisfy a given predicate, and one list for the others. Other frequently used lists functions include flatten/1, flatlength/1, flatmap/2, merge/1, nth/2, nthtail/2, split/2 and a bunch of others.
 
+map, filter和folds仅仅是Erlang标准库提供的适用于列表的众多抽象之一(`lists:map/2`, `lists:filter/2`, `lists:foldl/3` 和 `lists:foldr/3`)。还包括`all/2`和`any/2`，他们都是接受一个谓词，如果列表中每个元素都通过测试， `all/2`就返回true，或者如果至少有一个元素通过测试，`any/2`就返回true。`dropwhile/2`函数会丢弃所有元素，直到找到满足谓词条件的，相反地， `tablewhile/2`保留所有元素，直到遇到不满足谓词条件的元素。`partition/2`函数会接受一个列表，然后返回两个列表：其中一个只包含满足谓词的元素，另外一个包含剩下的。其他经常使用的函数包括`flatten/1`, `flatlength/1`, `flatmap/2`, `merge/1`, `nth/2`, `nthtail/2`, `split/2`等等。
+
 You'll also find other functions such as zippers (as seen in last chapter), unzippers, combinations of maps and folds, etc. I encourage you to read the documentation on lists to see what can be done. You'll find yourself rarely needing to write recursive functions by using what's already been abstracted away by smart people.
+
+你将会发现其他函数，例如zippers(见最后一章), unzippers, 结合maps和folds的等等。我鼓励你阅读关于lists模块的文档。你会发现你很少需要编写递归函数， 完全可以使用一些聪明的家伙已经抽象的函数。
