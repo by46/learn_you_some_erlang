@@ -6,46 +6,67 @@ Not so fast!
 
 There's no right place for a chapter like this one. By now, you've learned enough that you're probably running into errors, but not yet enough to know how to handle them. In fact we won't be able to see all the error-handling mechanisms within this chapter. That's a bit because Erlang has two main paradigms: functional and concurrent. The functional subset is the one I've been explaining since the beginning of the book: referential transparency, recursion, higher order functions, etc. The concurrent subset is the one that makes Erlang famous: actors, thousands and thousands of concurrent processes, supervision trees, etc.
 
+太难给这样一章安排合适的位置。到目前为止，你已经学习了很多关于erlang的知识，可能已经遭遇了error， 但是获取你还不知道如何处理他们。事实上，我们不可能仅仅用一章内容就能讲清楚处理错误的所有机制。那是因为Erlang有两个主要内容：函数式和并发。函数式部分已经在本书开始部分解释过了：引用透明， 递归，高阶函数等等。并发部分使得Erlang家喻户晓：actor模型， 成千上万的并发编程，监听树等等。
+
 Because I judge the functional part essential to know before moving on to the concurrent part, I'll only cover the functional subset of the language in this chapter. If we are to manage errors, we must first understand them.
 
+由于我觉得函数式部分更为基础，所以需要比并发部分先了解， 所以在这一章只会覆盖Erlang函数式相关的错误处理策略。如果我们要管理错误，我们首先应该了解它们。
+
+
 Note: Although Erlang includes a few ways to handle errors in functional code, most of the time you'll be told to just let it crash. I hinted at this in the Introduction. The mechanisms that let you program this way are in the concurrent part of the language.
+
+尽管在函数式代码中，Erlang有多种处理错误的方式，也许你听到最多的应该是崩溃。这个我在第一章也介绍过。这种机制是让你在Erlang关于并发部分编程中使用。
 
 A Compilation of Errors
 ---
 
 There are many kinds of errors: compile-time errors, logical errors, run-time errors and generated errors. I'll focus on compile-time errors in this section and go through the others in the next sections.
 
+这里有几类错误：编译时错误， 逻辑错误，运行时错误和产生的错误。在这一节中，我会更多的介绍运行时错误，其他类型的错误会在接下来几节中介绍。
+
 Compile-time errors are often syntactic mistakes: check your function names, the tokens in the language (brackets, parentheses, periods, commas), the arity of your functions, etc. Here's a list of some of the common compile-time error messages and potential resolutions in case you encounter them:
+
+编译错误经常是语法错误：会检查你的函数名，语言语法（方括号，圆括号，句号，逗号），函数的参数个数等等。这有一些常见编译时错误的错误消息列表，和一些可能用得上的解决方案。
 
 - module.beam: Module name 'madule' does not match file name 'module'
 The module name you've entered in the -module attribute doesn't match the filename.
+- 模块名和文件名不一致
 
 - ./module.erl:2: Warning: function some_function/0 is unused
 You have not exported a function, or the place where it's used has the wrong name or arity. It's also possible that you've written a function that is no longer needed. Check your code!
+- 你没有导出该函数，或者某处使用错误参数个数调用函数。 也有可能是你编写了一个未使用的函数。检查你的代码。
 
 - ./module.erl:2: function some_function/1 undefined
 The function does not exist. You've written the wrong name or arity either in the -export attribute or when declaring the function. This error is also output when the given function could not be compiled, usually because of a syntax error like forgetting to end a function with a period.
+- 该函数不存在。在`-export`属性中或者定义函数时，书写了错误的函数名或者错误参数个数。这个错误也会在某个函数不能被编译时被抛出，通常是语法错误，例如忘记了函数结尾处的句号。
 
 - ./module.erl:5: syntax error before: 'SomeCharacterOrWord'
 This happens for a variety of reason, namely unclosed parentheses, tuples or wrong expression termination (like closing the last branch of a case with a comma). Other reasons might include the use of a reserved atom in your code or unicode characters getting weirdly converted between different encodings (I've seen it happen!)
+- 有很多可能性， 未结束的括号，元组和错误的表达式结束（使用逗号结束case的分支语句）。其他原因可能包括在代码中使用保留字原子，unicode字符在不同的字符编码间转换。
 
 - ./module.erl:5: syntax error before:
 All right, that one is certainly not as descriptive! This usually comes up when your line termination is not correct. This is a specific case of the previous error, so just keep an eye out.
+- 这是一个不确定的描述。通常是因为代码行不正确的结束导致的。这是前一个错误的特例，留意就行了。
 
 - ./module.erl:5: Warning: this expression will fail with a 'badarith' exception
 Erlang is all about dynamic typing, but remember that the types are strong. In this case, the compiler is smart enough to find that one of your arithmetic expressions will fail (say, llama + 5). It won't find type errors much more complex than that, though.
+- Erlang采用动态类型系统，但是记住是强类型。在这个例子中，编译器非常聪明，它发现一个算术表达式会失败。他不能找到更为复杂的类型错误了。
 
 - ./module.erl:5: Warning: variable 'Var' is unused
 You declared a variable and never use it afterwards. This might be a bug with your code, so double-check what you have written. Otherwise, you might want to switch the variable name to _ or just prefix it with an underscore (something like _Var) if you feel the name helps make the code readable.
+- 变量定义未使用。在你的代码中，这也许是一个问题，所以复核一下你的代码。如果不存在问题，你可以使用`_`变量代替，如果你觉得变量名可以帮助理解代码，可以添加下划线作为前缀(例如_Var)
 
 - ./module.erl:5: Warning: a term is constructed, but never used
 In one of your functions, you're doing something such as building a list, declaring a tuple or an anonymous function without ever binding it to a variable or returning it. This warning tells you you're doing something useless or that you have made some mistake.
+- 在某个函数中， 你构建了一个列表，声明了一个元组，或者一个匿名函数，但却没有当定到某个变量或者将它作为返回值。
 
 - ./module.erl:5: head mismatch
 It's possible your function has more than one head, and each of them has a different arity. Don't forget that different arity means different functions, and you can't interleave function declarations that way. This error is also raised when you insert a function definition between the head clauses of another function.
+- 函数包含多个函数头，他们却拥有不同的参数个数。记住，不同的参数个数意味着是不同函数， 所以你不能交错定义函数。这错误也可能来之你在某个函数定义插入到另一个函数的函数头列表中。
 
 - ./module.erl:5: Warning: this clause cannot match because a previous clause at line 4 always matches
 A function defined in the module has a specific clause defined after a catch-all one. As such, the compiler can warn you that you'll never even need to go to the other branch.
+
 
 - ./module.erl:9: variable 'A' unsafe in 'case' (line 5)
 You're using a variable declared within one of the branches of a case ... of outside of it. This is considered unsafe. If you want to use such variables, you'd be better of doing MyVar = case ... of...
@@ -65,7 +86,7 @@ Run-time Errors
 ---
 Run-time errors are pretty destructive in the sense that they crash your code. While Erlang has ways to deal with them, recognizing these errors is always helpful. As such, I've made a little list of common run-time errors with an explanation and example code that could generate them.
 
-function_clause
+**function_clause**
 
 ```
 1> lists:sort([3,2,1]).
@@ -77,7 +98,7 @@ function_clause
 All the guard clauses of a function failed, or none of the function clauses' patterns matched.
 
 
-case_clause
+**case_clause**
 ```
 3> case "Unexpected Value" of
 3>    expected_value -> ok;
@@ -89,7 +110,7 @@ case_clause
 Looks like someone has forgotten a specific pattern in their case, sent in the wrong kind of data, or needed a catch-all clause!
 
 
-if_clause
+**if_clause**
 ```
 4> if 2 > 4 -> ok;
 4>    0 > 1 -> ok
@@ -100,7 +121,7 @@ if_clause
 This is pretty similar to case_clause errors: it can not find a branch that evaluates to true. Ensuring you consider all cases or add the catch-all true clause might be what you need.
 
 
-badmatch
+**badmatch**
 ```
 5> [X,Y] = {4,5}.
 ** exception error: no match of right hand side value {4,5}
@@ -108,7 +129,7 @@ badmatch
 
 Badmatch errors happen whenever pattern matching fails. This most likely means you're trying to do impossible pattern matches (such as above), trying to bind a variable for the second time, or just anything that isn't equal on both sides of the = operator (which is pretty much what makes rebinding a variable fail!). Note that this error sometimes happens because the programmer believes that a variable of the form _MyVar is the same as _. Variables with an underscore are normal variables, except the compiler won't complain if they're not used. It is not possible to bind them more than once.
 
-badarg
+**badarg**
 ```
 6> erlang:binary_to_list("heh, already a list").
 ** exception error: bad argument
@@ -118,7 +139,7 @@ badarg
 
 This one is really similar to function_clause as it's about calling functions with incorrect arguments. The main difference here is that this error is usually triggered by the programmer after validating the arguments from within the function, outside of the guard clauses. I'll show how to throw such errors later in this chapter.
 
-undef
+**undef**
 ```
 7> lists:random([1,2,3]).
 ** exception error: undefined function lists:random/1
@@ -126,7 +147,7 @@ undef
 
 This happens when you call a function that doesn't exist. Make sure the function is exported from the module with the right arity (if you're calling it from outside the module) and double check that you did type the name of the function and the name of the module correctly. Another reason to get the message is when the module is not in Erlang's search path. By default, Erlang's search path is set to be in the current directory. You can add paths by using code:add_patha/1 or code:add_pathz/1. If this still doesn't work, make sure you compiled the module to begin with!
 
-badarith
+**badarith**
 ```
 8> 5 + llama.
 ** exception error: bad argument in an arithmetic expression
@@ -136,7 +157,7 @@ badarith
 
 This happens when you try to do arithmetic that doesn't exist, like divisions by zero or between atoms and numbers.
 
-badfun
+**badfun**
 ```
 9> hhfuns:add(one,two).
 ** exception error: bad function one
@@ -145,7 +166,7 @@ badfun
 
 The most frequent reason why this error occurs is when you use variables as functions, but the variable's value is not a function. In the example above, I'm using the hhfuns function from the previous chapter and using two atoms as functions. This doesn't work and badfun is thrown.
 
-badarity
+**badarity**
 ```
 10> F = fun(_) -> ok end.
 #Fun<erl_eval.6.13229925>
@@ -155,7 +176,7 @@ badarity
 
 The badarity error is a specific case of badfun: it happens when you use higher order functions, but you pass them more (or fewer) arguments than they can handle.
 
-system_limit
+**system_limit**
 There are many reasons why a system_limit error can be thrown: too many processes (we'll get there), atoms that are too long, too many arguments in a function, number of atoms too large, too many nodes connected, etc. To get a full list in details, read the Erlang Efficiency Guide on system limits. Note that some of these errors are serious enough to crash the whole VM.
 
 
