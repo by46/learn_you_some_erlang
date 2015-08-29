@@ -45,7 +45,7 @@ Now open the Erlang shell, compile the module and get going:
 
 Confusing? Not so much, once you know how it works (isn't that always the case?) In command 2, the atoms one and two are passed to add/2, which then uses both atoms as function names (X() + Y()). If function names are written without a parameter list then those names are interpreted as atoms, and atoms can not be functions, so the call fails. This is the reason why expression 3 also fails: the values 1 and 2 can not be called as functions either, and functions are what we need!
 
-困惑？一旦你知道第二条命令是如何工作，你就不会再困惑了。在第二条命令里， 原子one 和two 被传递给add/2函数，然后这个两个原子都被作为函数名进行调用(X() + Y())。如果函数名没有写参数列表，那么这些名字被解释为原子，原子不能作为函数，所以调用失败。第三条命令调用失败的原因是：数值1和2同样不能作为函数来调用， 所以函数就是我们所需要的。
+困惑？一旦你知道第二条命令是如何工作，你就不会再困惑了。在第二条命令里， 原子one 和two 被传递给add/2函数，然后这个两个原子都被作为函数名进行调用(X() + Y())。如果函数名没有写参数列表，那么这些名字被解释为原子，原子不能作为函数，所以调用失败。第三条命令调用失败的原因是：数值1和2同样不能作为函数来调用， 所以函数才是我们所需要的。
 
 This is why a new notation has to be added to the language in order to let you pass functions from outside a module. This is what fun Module:Function/Arity is: it tells the VM to use that specific function, and then bind it to a variable.
 

@@ -309,4 +309,6 @@ For similar reasons (maintenance and fear for your eyes), it is usually consider
 
 Well, that's enough for the pedantic moralizations. How about we explore Erlang a little more?
 
+好吧，教条式说教已经足够多了， 让我们更进一步的探究Erlang，如何？
+
 ![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch1/circular-dependencies.png?raw=true)
