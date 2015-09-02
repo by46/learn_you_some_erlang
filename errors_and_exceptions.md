@@ -82,9 +82,13 @@ No, YOUR logic is wrong!
 
 Logical errors are the hardest kind of errors to find and debug. They're most likely errors coming from the programmer: branches of conditional statements such as 'if's and 'case's that don't consider all the cases, mixing up a multiplication for a division, etc. They do not make your programs crash but just end up giving you unseen bad data or having your program work in an unintended manner.
 
+逻辑错误是最难寻找和调试的错误类型。他们大部分来自程序员：来自一大堆没有考虑所有情况的条件语句， 例如`if`和`case`子句， 也可能来自混合了乘除法的语句。虽然他们不会导致你的程序崩溃，但是以给出了未预见的错误数据，或者使程序以某种非期望方式运行而结束。
+
 ![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch6/exam.png?raw=true)
 
 You're most likely on your own when it comes to this, but Erlang has many facilities to help you there, including test frameworks, TypEr and Dialyzer (as described in the types chapter), a debugger and tracing module, etc. Testing your code is likely your best defense. Sadly, there are enough of these kinds of errors in every programmer's career to write a few dozen books about so I'll avoid spending too much time here. It's easier to focus on those that make your programs crash, because it happens right there and won't bubble up 50 levels from now. Note that this is pretty much the origin of the 'let it crash' ideal I mentioned a few times already.
+
+当错误发生时，也许你只能独自面对，但是Erlang有很多可以帮到你的工具，包括 测试框架， TypEr 和Dialyzer(types章节中提到的)，调试器和跟踪模块等等。测试代码也许是最好的防御手段。很遗憾， 在每个程序员的职业生涯中，他会遇到很多类型的错误，所以我不想花太多的时间在防御这些错误类型上。相比而言，关注那些使程序崩溃的错误更容易，因为当这些异常发生时， 他们不会被冒泡50级。就是几乎就是“让它崩溃”说法的原始来源吧。
 
 Run-time Errors
 ---
