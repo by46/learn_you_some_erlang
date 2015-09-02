@@ -66,12 +66,16 @@ It's possible your function has more than one head, and each of them has a diffe
 
 - ./module.erl:5: Warning: this clause cannot match because a previous clause at line 4 always matches
 A function defined in the module has a specific clause defined after a catch-all one. As such, the compiler can warn you that you'll never even need to go to the other branch.
+- 匹配所有的函数分支之后还定义了其他函数分支，导致该分支永远不会执行，编译器发出警告信息
 
 
 - ./module.erl:9: variable 'A' unsafe in 'case' (line 5)
 You're using a variable declared within one of the branches of a case ... of outside of it. This is considered unsafe. If you want to use such variables, you'd be better of doing MyVar = case ... of...
+- 在case分支中定了某变量，但却在case分支之外使用了该变量。这样的代码被认为是不安全的。如果你希望使用该变量，你最好这样：MyVar = case ... of
 
 This should cover most errors you get at compile-time at this point. There aren't too many and most of the time the hardest part is finding which error caused a huge cascade of errors listed against other functions. It is better to resolve compiler errors in the order they were reported to avoid being misled by errors which may not actually be errors at all. Other kinds of errors sometimes appear and if you've got one I haven't included, send me an email and I'll add it along with an explanation as soon as possible.
+
+在编译时，你应该解决所有错误。错误类型也不会太多，大部分时间都花费在最难的部分，找出引起一大堆级联错误列表的那个关键错误。最好是根据报告的顺序解决编译错误，这样可以避免被那些不是真正错误的错误所误导。有时候会出现其他类型的编译错误，如果你发现了我没有列出的编译错误，请给发送邮件，我会尽快添加到这个列表中。
 
 No, YOUR logic is wrong!
 ---
