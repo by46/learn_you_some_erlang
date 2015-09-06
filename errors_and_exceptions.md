@@ -94,6 +94,8 @@ Run-time Errors
 ---
 Run-time errors are pretty destructive in the sense that they crash your code. While Erlang has ways to deal with them, recognizing these errors is always helpful. As such, I've made a little list of common run-time errors with an explanation and example code that could generate them.
 
+就使程序崩溃而言，运行时错误是非常觉有破坏性的。虽然Erlang有办法可以处理运行时异常， 但是识别这些运行时异常总是有益处的。同样， 我列举了一些常见的运行时错误及说明，还有一些产生他们的示例代码。
+
 **function_clause**
 
 ```
@@ -104,7 +106,7 @@ Run-time errors are pretty destructive in the sense that they crash your code. W
 ```
 
 All the guard clauses of a function failed, or none of the function clauses' patterns matched.
-
+函数所有guard子句匹配失败， 或者没有任何函数子句的模式匹配成功。
 
 **case_clause**
 ```
@@ -116,7 +118,7 @@ All the guard clauses of a function failed, or none of the function clauses' pat
 ```
 
 Looks like someone has forgotten a specific pattern in their case, sent in the wrong kind of data, or needed a catch-all clause!
-
+看起来像是在他们的case子句中忘记了一个特殊的模式匹配，并输入了错误类型的数据， 也可以使用一个匹配所有的子句。
 
 **if_clause**
 ```
@@ -127,6 +129,7 @@ Looks like someone has forgotten a specific pattern in their case, sent in the w
 ```
 
 This is pretty similar to case_clause errors: it can not find a branch that evaluates to true. Ensuring you consider all cases or add the catch-all true clause might be what you need.
+这类错误和case_clause 子句非常相似：没有永真子句。确认你考虑了所有情况，或者加入匹配所有情况的子句。
 
 
 **badmatch**
@@ -136,6 +139,7 @@ This is pretty similar to case_clause errors: it can not find a branch that eval
 ```
 
 Badmatch errors happen whenever pattern matching fails. This most likely means you're trying to do impossible pattern matches (such as above), trying to bind a variable for the second time, or just anything that isn't equal on both sides of the = operator (which is pretty much what makes rebinding a variable fail!). Note that this error sometimes happens because the programmer believes that a variable of the form _MyVar is the same as _. Variables with an underscore are normal variables, except the compiler won't complain if they're not used. It is not possible to bind them more than once.
+Badmatch异常发生在模式匹配失败时。这很有可能意味着你正尝试做一些不可能完成的模式匹配（如上所示）、试图多次绑定某个变量或者`=`操作符两边的值不相等（很可能是从新绑定变量失败导致的）。**missing**。以下划线开头的变量也是正常的变量，是因为当有变量未使用时，编译器会发出警告。
 
 **badarg**
 ```
@@ -147,6 +151,8 @@ Badmatch errors happen whenever pattern matching fails. This most likely means y
 
 This one is really similar to function_clause as it's about calling functions with incorrect arguments. The main difference here is that this error is usually triggered by the programmer after validating the arguments from within the function, outside of the guard clauses. I'll show how to throw such errors later in this chapter.
 
+这类异常和function_clause异常很类似，使用不正确的参数调用函数而产生。主要不同之处是：badarg异常一般由程序员自己触发，程序员在函数体中验证参数的合法性，如果非法通过erlang:error(badarg)触发异常。我会在稍后的章节中演示如何触发这类异常。
+
 **undef**
 ```
 7> lists:random([1,2,3]).
@@ -154,6 +160,8 @@ This one is really similar to function_clause as it's about calling functions wi
 ```
 
 This happens when you call a function that doesn't exist. Make sure the function is exported from the module with the right arity (if you're calling it from outside the module) and double check that you did type the name of the function and the name of the module correctly. Another reason to get the message is when the module is not in Erlang's search path. By default, Erlang's search path is set to be in the current directory. You can add paths by using code:add_patha/1 or code:add_pathz/1. If this still doesn't work, make sure you compiled the module to begin with!
+
+当你调用某个不存在的函数是就会触发该异常。确认该函数是否从模块中导出，并且函数参数个数也正确(当你从模块之外调用)，复查函数名和函数所属模块名是否正确。另外的一个原因可能是模块不在Erlang的搜索路径中。缺省情况下，Erlang的搜索路径被设置为当前工作目录。你可以通过`code:add_patha/1`和`code:add_pathz/1`函数添加其他的搜索路径。如果仍然不工作，那确认是否编译了模块。
 
 **badarith**
 ```
@@ -165,6 +173,8 @@ This happens when you call a function that doesn't exist. Make sure the function
 
 This happens when you try to do arithmetic that doesn't exist, like divisions by zero or between atoms and numbers.
 
+当你尝试进行非法的算术运算时，就会触发该异常，例如：出零或者在原子和数值之间进行算术运算。
+
 **badfun**
 ```
 9> hhfuns:add(one,two).
@@ -173,6 +183,8 @@ This happens when you try to do arithmetic that doesn't exist, like divisions by
 ```
 
 The most frequent reason why this error occurs is when you use variables as functions, but the variable's value is not a function. In the example above, I'm using the hhfuns function from the previous chapter and using two atoms as functions. This doesn't work and badfun is thrown.
+
+发生该异常常见的原因是把非函数变量的变量当作函数使用，例如上面例子所示，hhfuns函数中使用两个原子当作函数使用，但是这通常不会有效，并且会触发badfun异常。
 
 **badarity**
 ```
@@ -184,9 +196,12 @@ The most frequent reason why this error occurs is when you use variables as func
 
 The badarity error is a specific case of badfun: it happens when you use higher order functions, but you pass them more (or fewer) arguments than they can handle.
 
+badarity异常是一种特殊的badfun异常：当你使用高阶函数是，传递了过多或过少的参数时， 就会触发该异常。
+
 **system_limit**
 There are many reasons why a system_limit error can be thrown: too many processes (we'll get there), atoms that are too long, too many arguments in a function, number of atoms too large, too many nodes connected, etc. To get a full list in details, read the Erlang Efficiency Guide on system limits. Note that some of these errors are serious enough to crash the whole VM.
 
+触发system_limit异常的原因有多种：过多的进程， 原子过长，函数的参数过多，原子个数过多，链接的节点过多等等。阅读Erlang 高效指南的系统限制文档，以获得详细的列表。注意有一些异常会非常严重，以至于导致整个虚拟机崩溃。
 
 Raising Exceptions
 ---
