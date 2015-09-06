@@ -106,6 +106,7 @@ Run-time errors are pretty destructive in the sense that they crash your code. W
 ```
 
 All the guard clauses of a function failed, or none of the function clauses' patterns matched.
+
 函数所有guard子句匹配失败， 或者没有任何函数子句的模式匹配成功。
 
 **case_clause**
@@ -118,6 +119,7 @@ All the guard clauses of a function failed, or none of the function clauses' pat
 ```
 
 Looks like someone has forgotten a specific pattern in their case, sent in the wrong kind of data, or needed a catch-all clause!
+
 看起来像是在他们的case子句中忘记了一个特殊的模式匹配，并输入了错误类型的数据， 也可以使用一个匹配所有的子句。
 
 **if_clause**
@@ -129,6 +131,7 @@ Looks like someone has forgotten a specific pattern in their case, sent in the w
 ```
 
 This is pretty similar to case_clause errors: it can not find a branch that evaluates to true. Ensuring you consider all cases or add the catch-all true clause might be what you need.
+
 这类错误和case_clause 子句非常相似：没有永真子句。确认你考虑了所有情况，或者加入匹配所有情况的子句。
 
 
@@ -139,6 +142,7 @@ This is pretty similar to case_clause errors: it can not find a branch that eval
 ```
 
 Badmatch errors happen whenever pattern matching fails. This most likely means you're trying to do impossible pattern matches (such as above), trying to bind a variable for the second time, or just anything that isn't equal on both sides of the = operator (which is pretty much what makes rebinding a variable fail!). Note that this error sometimes happens because the programmer believes that a variable of the form _MyVar is the same as _. Variables with an underscore are normal variables, except the compiler won't complain if they're not used. It is not possible to bind them more than once.
+
 Badmatch异常发生在模式匹配失败时。这很有可能意味着你正尝试做一些不可能完成的模式匹配（如上所示）、试图多次绑定某个变量或者`=`操作符两边的值不相等（很可能是从新绑定变量失败导致的）。**missing**。以下划线开头的变量也是正常的变量，是因为当有变量未使用时，编译器会发出警告。
 
 **badarg**
@@ -210,15 +214,26 @@ Raising Exceptions
 
 In trying to monitor the execution of code and protect against logical errors, it's often a good idea to provoke run-time crashes so problems will be spotted early.
 
+在试图监听代码的执行和防止逻辑错误时，引发运行时异常而是问题及早发现是不错的注意。
+
 There are three kinds of exceptions in Erlang: errors, throws and exits. They all have different uses (kind of):
+
+在Erlang中有三种异常：errors， throws 和exits。他们都有不同的用途：
 
 **Errors**
 
 Calling erlang:error(Reason) will end the execution in the current process and include a stack trace of the last functions called with their arguments when you catch it. These are the kind of exceptions that provoke the run-time errors above.
 
+调用`erlang:error(Reason)`将会终止当前进程的执行，当你捕获异常时，该异常会包含最后一个调用函数的堆栈信息以及调用参数。这些可触发的异常就如上所示。
+
 Errors are the means for a function to stop its execution when you can't expect the calling code to handle what just happened. If you get an if_clause error, what can you do? Change the code and recompile, that's what you can do (other than just displaying a pretty error message). An example of when not to use errors could be our tree module from the recursion chapter. That module might not always be able to find a specific key in a tree when doing a lookup. In this case, it makes sense to expect the user to deal with unknown results: they could use a default value, check to insert a new one, delete the tree, etc. This is when it's appropriate to return a tuple of the form {ok, Value} or an atom like undefined rather than raising errors.
 
+当你不再期望调用代码处理异常，Errors是函数终止执行的一种手段。如果你捕获到if_clause异常，你会做什么？你可以修改代码，重新编译(或者显示一个友好的错误信息)。在迭代章节中的tree例子，tree模块不是总能在tree中找到某个key。在当前例子中，期望用户自己来处理未知结果是有意义的：他们可以使用一个默认值，插入一个新值，或者删除该tree等等。返回{ok, Value}形式的元组或者返回例如undefined的原子比触发异常更合适。
+
 Now, errors aren't limited to the examples above. You can define your own kind of errors too:
+
+现在，上面例子的errors没有做限制。你也可以自定义错误类型:
+
 
 ```
 1> erlang:error(badarith).
@@ -229,13 +244,21 @@ Now, errors aren't limited to the examples above. You can define your own kind o
 
 Here, custom_error is not recognized by the Erlang shell and it has no custom translation such as "bad argument in ...", but it's usable in the same way and can be handled by the programmer in an identical manner (we'll see how to do that soon).
 
+此时， custom_error不能被Erlang shell识别，它不能被翻译为更为可读的异常，当时它也可以按照同样方式使用，按照同样的方式被程序员处理。
+
 **Exits**
 
 There are two kinds of exits: 'internal' exits and 'external' exits. Internal exits are triggered by calling the function exit/1 and make the current process stop its execution. External exits are called with exit/2 and have to do with multiple processes in the concurrent aspect of Erlang; as such, we'll mainly focus on internal exits and will visit the external kind later on.
 
+有两种类型的exits：'internal' exits 和 'external' exits. 调用函数`exit/1`会触发内部退出，并且会使当前进程终止执行。在并发编程多进程中，调用函数`exit/2`将会触发外部异常。同样的，我们将会主要关注内部退出，在稍后章节中我们会看到外部异常。
+
 Internal exits are pretty similar to errors. In fact, historically speaking, they were the same and only exit/1 existed. They've got roughly the same use cases. So how to choose one? Well the choice is not obvious. To understand when to use one or the other, there's no choice but to start looking at the concepts of actors and processes from far away.
 
+内部退出非常类似errors。事实上，从历史来讲， 他们都是一样的，只存在`exit/1`。他们的用法大致相同。所以怎么选择他们呢？选择不是很明显。为了理解什么时候用errors，什么时候用exits，除了查看actor模型和进程的概念，没有其他选择。
+
 In the introduction, I've compared processes as people communicating by mail. There's not a lot to add to the analogy, so I'll go to diagrams and bubbles.
+
+在第一章节，我曾把进程比作公民通过信件通信。没有必要增加更多的类比，所以我们来看图示。
 
 ![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch6/a-b-msg.png?raw=true)
 
