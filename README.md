@@ -10,6 +10,7 @@ Content
 * [Errors and Exceptions](errors_and_exceptions.md)
 * [Event Handlers](event_handlers.md)
 
+``` bash
 #! /bin/bash
 
 if [ $# != 1 ]
@@ -28,3 +29,4 @@ do
 	ps h u -p $1 >> $FNAME
 	sleep $FIVEM
 done
+```
