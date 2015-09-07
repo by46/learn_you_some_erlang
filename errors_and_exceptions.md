@@ -98,7 +98,7 @@ Run-time errors are pretty destructive in the sense that they crash your code. W
 
 **function_clause**
 
-```
+``` erlang
 1> lists:sort([3,2,1]).
 [1,2,3]
 2> lists:sort(fffffff).
@@ -110,7 +110,7 @@ All the guard clauses of a function failed, or none of the function clauses' pat
 函数所有guard子句匹配失败， 或者没有任何函数子句的模式匹配成功。
 
 **case_clause**
-```
+``` erlang
 3> case "Unexpected Value" of
 3>    expected_value -> ok;
 3>    other_expected_value -> 'also ok'
@@ -123,7 +123,7 @@ Looks like someone has forgotten a specific pattern in their case, sent in the w
 看起来像是在他们的case子句中忘记了一个特殊的模式匹配，并输入了错误类型的数据， 也可以使用一个匹配所有的子句。
 
 **if_clause**
-```
+``` erlang
 4> if 2 > 4 -> ok;
 4>    0 > 1 -> ok
 4> end.
@@ -136,7 +136,7 @@ This is pretty similar to case_clause errors: it can not find a branch that eval
 
 
 **badmatch**
-```
+``` erlang
 5> [X,Y] = {4,5}.
 ** exception error: no match of right hand side value {4,5}
 ```
@@ -146,7 +146,7 @@ Badmatch errors happen whenever pattern matching fails. This most likely means y
 Badmatch异常发生在模式匹配失败时。这很有可能意味着你正尝试做一些不可能完成的模式匹配（如上所示）、试图多次绑定某个变量或者`=`操作符两边的值不相等（很可能是从新绑定变量失败导致的）。**missing**。以下划线开头的变量也是正常的变量，是因为当有变量未使用时，编译器会发出警告。
 
 **badarg**
-```
+``` erlang
 6> erlang:binary_to_list("heh, already a list").
 ** exception error: bad argument
     in function  binary_to_list/1
@@ -158,7 +158,7 @@ This one is really similar to function_clause as it's about calling functions wi
 这类异常和function_clause异常很类似，使用不正确的参数调用函数而产生。主要不同之处是：badarg异常一般由程序员自己触发，程序员在函数体中验证参数的合法性，如果非法通过erlang:error(badarg)触发异常。我会在稍后的章节中演示如何触发这类异常。
 
 **undef**
-```
+``` erlang
 7> lists:random([1,2,3]).
 ** exception error: undefined function lists:random/1
 ```
@@ -168,7 +168,7 @@ This happens when you call a function that doesn't exist. Make sure the function
 当你调用某个不存在的函数是就会触发该异常。确认该函数是否从模块中导出，并且函数参数个数也正确(当你从模块之外调用)，复查函数名和函数所属模块名是否正确。另外的一个原因可能是模块不在Erlang的搜索路径中。缺省情况下，Erlang的搜索路径被设置为当前工作目录。你可以通过`code:add_patha/1`和`code:add_pathz/1`函数添加其他的搜索路径。如果仍然不工作，那确认是否编译了模块。
 
 **badarith**
-```
+``` erlang
 8> 5 + llama.
 ** exception error: bad argument in an arithmetic expression
     in operator  +/2
@@ -180,7 +180,7 @@ This happens when you try to do arithmetic that doesn't exist, like divisions by
 当你尝试进行非法的算术运算时，就会触发该异常，例如：出零或者在原子和数值之间进行算术运算。
 
 **badfun**
-```
+``` erlang
 9> hhfuns:add(one,two).
 ** exception error: bad function one
     in function  hhfuns:add/2
@@ -191,7 +191,7 @@ The most frequent reason why this error occurs is when you use variables as func
 发生该异常常见的原因是把非函数变量的变量当作函数使用，例如上面例子所示，hhfuns函数中使用两个原子当作函数使用，但是这通常不会有效，并且会触发badfun异常。
 
 **badarity**
-```
+``` erlang
 10> F = fun(_) -> ok end.
 #Fun<erl_eval.6.13229925>
 11> F(a,b).
@@ -235,7 +235,7 @@ Now, errors aren't limited to the examples above. You can define your own kind o
 现在，上面例子的errors没有做限制。你也可以自定义错误类型:
 
 
-```
+``` erlang
 1> erlang:error(badarith).
 ** exception error: bad argument in an arithmetic expression
 2> erlang:error(custom_error).
@@ -264,26 +264,38 @@ In the introduction, I've compared processes as people communicating by mail. Th
 
 Processes here can send each other messages. A process can also listen for messages, wait for them. You can also choose what messages to listen to, discard some, ignore others, give up listening after a certain time etc.
 
+进程间可以相互发送消息。进程可以接收、等待消息。你也可以选择接收那些消息，丢弃那些消息，忽略那些消息，放弃接收消息等等。
+
 ![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch6/a-b-c-hello.png?raw=true)
 
 These basic concepts let the implementors of Erlang use a special kind of message to communicate exceptions between processes. They act a bit like a process' last breath; they're sent right before a process dies and the code it contains stops executing. Other processes that were listening for that specific kind of message can then know about the event and do whatever they please with it. This includes logging, restarting the process that died, etc.
+
+由于这些基础概念， 所以使得Erlang的实现者使用某种特殊消息在进程间传达异常。他们的角色有点像进程的心跳；如果进程没有终止，这些特殊消息就会被正确发送。监听了这些特殊消息的其他进程可以收到这些事件，并进行合理的处理。包括记录日志，重启刚死掉的进程等等。
 
 ![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch6/a-b-dead.png?raw=true)
 
 With this concept explained, the difference in using erlang:error/1 and exit/1 is easier to understand. While both can be used in an extremely similar manner, the real difference is in the intent. You can then decide whether what you've got is 'simply' an error or a condition worthy of killing the current process. This point is made stronger by the fact that erlang:error/1 returns a stack trace and exit/1 doesn't. If you were to have a pretty large stack trace or lots of arguments to the current function, copying the exit message to every listening process would mean copying the data. In some cases, this could become unpractical.
 
+有了这些概念的解释， 使用`erlang:error/1` 和 `erlang:exit/1`的不同之处就更容易理解。他们都可以以某种非常相似的方式使用，正真的不同在于使用意图。你可以决定接收一个简洁的异常，还是携带有额外信息的异常。`erlang:error/1`会返回堆栈信息，而`erlang:exit/1`不会返回堆栈信息。如果当前函数有很大的堆栈信息和调用参数，拷贝这些退出消息给其他进程就意味着拷贝数据。 在有些情况下，这些将是不切实际的。
+
 **Throws**
 
 A throw is a class of exceptions used for cases that the programmer can be expected to handle. In comparison with exits and errors, they don't really carry any 'crash that process!' intent behind them, but rather control flow. As you use throws while expecting the programmer to handle them, it's usually a good idea to document their use within a module using them.
 
+`throw`是异常的一种，用于那些程序员期望处理的异常情况。相较于`exit`和`error`， 他不会有"崩溃进程"的意图，而只是用于流程控制。你使用了`throw`，而又期望程序员处理这些异常，那么在文档中记录这些使用情况是一个很好的注意。
+
 The syntax to throw an exception is:
 
-```
+`throw`异常的语法：
+
+``` erlang
 1> throw(permission_denied).
 ** exception throw: permission_denied
 ```
 
 Where you can replace permission_denied by anything you want (including 'everything is fine', but that is not helpful and you will lose friends).
+
+你可以用你希望的任何东西代替permission_denied。（包括'everything is fine'， 但是这些不是有用的信息）。
 
 Throws can also be used for non-local returns when in deep recursion. An example of that is the ssl module which uses throw/1 as a way to push {error, Reason} tuples back to a top-level function. This function then simply returns that tuple to the user. This lets the implementer only write for the successful cases and have one function deal with the exceptions on top of it all.
 
@@ -298,7 +310,7 @@ I've already mentioned quite a few times that throws, errors and exits can be ha
 
 A try ... catch is a way to evaluate an expression while letting you handle the successful case as well as the errors encountered. The general syntax for such an expression is:
 
-```
+``` erlang
 try Expression of
     SuccessfulPattern1 [Guards] ->
         Expression1;
@@ -316,7 +328,7 @@ The Expression in between try and of is said to be protected. This means that an
 
 First of all, let's start a module named exceptions. We're going for simple here:
 
-```
+``` erlang
 -module(exceptions).
 -compile(export_all).
  
@@ -330,7 +342,7 @@ end.
 
 We can compile it and try it with different kinds of exceptions:
 
-```
+``` erlang
 1> c(exceptions).
 {ok,exceptions}
 2> exceptions:throws(fun() -> throw(thrown) end).
@@ -341,7 +353,7 @@ We can compile it and try it with different kinds of exceptions:
 
 As you can see, this try ... catch is only receiving throws. As stated earlier, this is because when no type is mentioned, a throw is assumed. Then we have functions with catch clauses of each type:
 
-```
+``` erlang
 errors(F) ->
     try F() of
         _ -> ok
@@ -359,7 +371,7 @@ exits(F) ->
 
 And to try them:
 
-```
+``` erlang
 4> c(exceptions).
 {ok,exceptions}
 5> exceptions:errors(fun() -> erlang:error("Die!") end).
@@ -370,7 +382,7 @@ And to try them:
 
 The next example on the menu shows how to combine all the types of exceptions in a single try ... catch. We'll first declare a function to generate all the exceptions we need:
 
-```
+``` erlang
 sword(1) -> throw(slice);
 sword(2) -> erlang:error(cut_arm);
 sword(3) -> exit(cut_leg);
@@ -390,13 +402,13 @@ black_knight(Attack) when is_function(Attack, 0) ->
 
 Here is_function/2 is a BIF which makes sure the variable Attack is a function of arity 0. Then we add this one for good measure:
 
-```
+``` erlang
 talk() -> "blah blah".
 ```
 
 And now for something completely different:
 
-```
+``` erlang
 7> c(exceptions).
 {ok,exceptions}
 8> exceptions:talk().
@@ -424,7 +436,7 @@ One thing shown here on expressions 13 and 14 is a catch-all clause for exceptio
 
 There's also an additional clause that can be added after a try ... catch that will always be executed. This is equivalent to the 'finally' block in many other languages:
 
-```
+``` erlang
 try Expr of
     Pattern -> Expr1
 catch
@@ -438,7 +450,7 @@ No matter if there are errors or not, the expressions inside the after part are 
 
 We now know how to handle the 3 classes of exceptions in Erlang with catch blocks. However, I've hidden information from you: it's actually possible to have more than one expression between the try and the of!
 
-```
+``` erlang
 whoa() ->
     try
         talk(),
@@ -457,7 +469,7 @@ By calling exceptions:whoa(), we'll get the obvious {caught, throw, up}, because
 
 What I just highlighted in exceptions:whoa/0 and that you might have not noticed is that when we use many expressions in that manner, we might not always care about what the return value is. The of part thus becomes a bit useless. Well good news, you can just give it up:
 
-```
+``` erlang
 im_impressed() ->
     try
         talk(),
@@ -484,7 +496,7 @@ Wait, there's more!
 
 As if it wasn't enough to be on par with most languages already, Erlang's got yet another error handling structure. That structure is defined as the keyword catch and basically captures all types of exceptions on top of the good results. It's a bit of a weird one because it displays a different representation of exceptions:
 
-```
+``` erlang
 1> catch throw(whoa).
 whoa
 2> catch exit(die).
@@ -504,7 +516,7 @@ What we can see from this is that throws remain the same, but that exits and err
 
 The way to read this stack trace is as follows:
 
-```
+``` erlang
 5> catch doesnt:exist(a,4).             
 {'EXIT',{undef,[{doesnt,exist,[a,4]},
     {erl_eval,do_apply,5},
@@ -523,7 +535,7 @@ You can also manually get a stack trace by calling erlang:get_stacktrace/0 in th
 
 You'll often see catch written in the following manner (we're still in exceptions.erl):
 
-```
+``` erlang
 catcher(X,Y) ->
     case catch X/Y of
         {'EXIT', {badarith,_}} -> "uh oh";
@@ -533,7 +545,7 @@ catcher(X,Y) ->
 
 And as expected:
 
-```
+``` erlang
 6> c(exceptions).
 {ok,exceptions}
 7> exceptions:catcher(3,3).
@@ -546,7 +558,7 @@ And as expected:
 
 This sounds compact and easy to catch exceptions, but there are a few problems with catch. The first of it is operator precedence:
 
-```
+``` erlang
 10> X = catch 4+2.
 * 1: syntax error before: 'catch'
 10> X = (catch 4+2).
@@ -555,7 +567,7 @@ This sounds compact and easy to catch exceptions, but there are a few problems w
 
 That's not exactly intuitive given that most expressions do not need to be wrapped in parentheses this way. Another problem with catch is that you can't see the difference between what looks like the underlying representation of an exception and a real exception:
 
-```
+``` erlang
 11> catch erlang:boat().
 {'EXIT',{undef,[{erlang,boat,[]},
     {erl_eval,do_apply,5},
@@ -574,14 +586,14 @@ That's not exactly intuitive given that most expressions do not need to be wrapp
 
 And you can't know the difference between an error and an actual exit. You could also have used throw/1 to generate the above exception. In fact, a throw/1 in a catch might also be problematic in another scenario:
 
-```
+``` erlang
 one_or_two(1) -> return;
 one_or_two(2) -> throw(return).
 ```
 
 And now the killer problem:
 
-```
+``` erlang
 13> c(exceptions).
 {ok,exceptions}
 14> catch exceptions:one_or_two(1).
@@ -598,7 +610,7 @@ To put exceptions in practice, we'll do a little exercise requiring us to dig fo
 
 The traversal of the tree will be roughly similar to what we did in tree:lookup/2, except this time we will always search down both the left branch and the right branch. To write the function, you'll just need to remember that a tree node is either {node, {Key, Value, NodeLeft, NodeRight}} or {node, 'nil'} when empty. With this in hand, we can write a basic implementation without exceptions:
 
-```
+``` erlang
 %% looks for a given value 'Val' in the tree.
 has_value(_, {node, 'nil'}) ->
     false;
@@ -617,7 +629,7 @@ The problem with this implementation is that every node of the tree we branch at
 
 This is a bit annoying. With the help of throws, we can make something that will require less comparisons:
 
-```
+``` erlang
 has_value(Val, Tree) ->
     try has_value1(Val, Tree) of
         false -> false

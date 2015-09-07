@@ -2,10 +2,10 @@ Learn you some erlang
 ===
 Content
 ---
-1. Modules(modules.md)
-2. Syntax in Functions(syntax_in_functions.md)
-3. Types(types.md)
-4. Recursion(recursion.md)
-5. Higher Order Functions(higher_order_functions.md)
-6. Errors and Exceptions(errors_and_exceptions.md)
-16. Event Handlers(event_handlers.md)
+* [Modules](modules.md)
+* [Syntax in Functions](syntax_in_functions.md)
+* [Types](types.md)
+* [Recursion](recursion.md)
+* [Higher Order Functions](higher_order_functions.md)
+* [Errors and Exceptions](errors_and_exceptions.md)
+* [Event Handlers](event_handlers.md)
