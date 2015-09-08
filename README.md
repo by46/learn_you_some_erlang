@@ -10,23 +10,3 @@ Content
 * [Errors and Exceptions](errors_and_exceptions.md)
 * [Event Handlers](event_handlers.md)
 
-``` bash
-#! /bin/bash
-
-if [ $# != 1 ]
-then
-	echo "usage: mem.sh [pid]"
-	exit 1
-fi
-
-FNAME=mem.txt
-FIVEM=300
-
-ps u -p 1 | head -1 > $FNAME
-
-while true
-do
-	ps h u -p $1 >> $FNAME
-	sleep $FIVEM
-done
-```
