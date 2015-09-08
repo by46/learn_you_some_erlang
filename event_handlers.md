@@ -152,7 +152,7 @@ We'll start with the scoreboard. Because they're installing it right now, we'll 
 
 我们将开始我们的积分牌项目，因为它们已经安装好了， 所以需要先创建一些假的模块，并与他们交互，并且也是简单的在标准输出上打印这些消息。以下是curling_scoreboard_hw.erl模块的内容：
 
-```
+``` erlang
 -module(curling_scoreboard_hw).
 -export([add_point/1, next_round/0, set_teams/2, reset_board/0]).
  
