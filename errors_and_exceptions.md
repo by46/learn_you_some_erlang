@@ -2,7 +2,7 @@ Errors and Exceptions
 ===
 Not so fast!
 ---
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch6/cyclist.png?raw=true)
+![](/images/ch6/cyclist.png)
 
 There's no right place for a chapter like this one. By now, you've learned enough that you're probably running into errors, but not yet enough to know how to handle them. In fact we won't be able to see all the error-handling mechanisms within this chapter. That's a bit because Erlang has two main paradigms: functional and concurrent. The functional subset is the one I've been explaining since the beginning of the book: referential transparency, recursion, higher order functions, etc. The concurrent subset is the one that makes Erlang famous: actors, thousands and thousands of concurrent processes, supervision trees, etc.
 
