@@ -299,9 +299,15 @@ Where you can replace permission_denied by anything you want (including 'everyth
 
 Throws can also be used for non-local returns when in deep recursion. An example of that is the ssl module which uses throw/1 as a way to push {error, Reason} tuples back to a top-level function. This function then simply returns that tuple to the user. This lets the implementer only write for the successful cases and have one function deal with the exceptions on top of it all.
 
+当递归调用层数很深时，throw可以用于非本地返回。举个例子，在ssl模块中，就使用`throw/1`来推送{error, Reason}元组到最上层函数。最上层函数仅向用户返回一个元组。这可以让实现者仅仅编写正常情况的代码，而在顶层使用一个函数来处理所有的异常情况。
+
 Another example could be the array module, where there is a lookup function that can return a user-supplied default value if it can't find the element needed. When the element can't be found, the value default is thrown as an exception, and the top-level function handles that and substitutes it with the user-supplied default value. This keeps the programmer of the module from needing to pass the default value as a parameter of every function of the lookup algorithm, again focusing only on the successful cases.
 
+另外一个例子是`array`模块的lookup函数，当找不到需要的元素是，该函数仅仅返回一个用户定义的默认值。当元素找不到时，某个默认值被当作异常被抛出，顶层函数负责处理该异常，然后使用用户定义的默认值替代该异常。这样就可以是模块的编写者不需要向所有查找逻辑函数传递该默认值。
+
 As a rule of thumb, try to limit the use of your throws for non-local returns to a single module in order to make it easier to debug your code. It will also let you change the innards of your module without requiring changes in its interface.
+
+作为经验之谈，尽量限制在单个模块中使用throws来为做非本地返回，因为这样会使你的代码更容易调试。这样也使得当你改变模块的内部结构时，不至于修改模块的接口。
 
 Dealing with Exceptions
 ---
