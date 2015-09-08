@@ -16,7 +16,7 @@ Alright, this might be a little bit weird, so let's start with an example:
 
 好吧， 这听起来有些不可思议，让我们来看一个例子：
 
-```
+``` erlang
 -module(hhfuns).
 -compile(export_all).
  
@@ -30,7 +30,7 @@ Now open the Erlang shell, compile the module and get going:
 
 打开Erlang shell， 编译模块，开始下面的输入：
 
-```
+``` erlang
 1> c(hhfuns).
 {ok, hhfuns}
 2> hhfuns:add(one,two).
@@ -55,7 +55,7 @@ So what are the gains of using functions in that manner? Well a little example m
 
 我们能从这种使用函数的方式中获得什么？为了理解它，我们需要一个小小的例子。我们向hhfuns模块中添加几个函数，用于递归地对一个整数列表中的每个元素进行加1或减1操作。
 
-```
+``` erlang
 increment([]) -> [];
 increment([H|T]) -> [H+1|increment(T)].
  
@@ -67,7 +67,7 @@ See how similar these functions are? They basically do the same thing: they cycl
 
 这些函数是不是如此相似？他们基本完成同样的事情：他们以此遍历整个列表， 对每个元素应用一个函数(+ 或 -)，然后调用自己。两段代码基本上没有什么变化：除应用的函数和递归调用不同意外。像那样递归遍历列表的代码看上总是一样的。 我们将会抽象所有相似的部分到一个单独函数(map/2)，它接受另外一个函数作为参数：
 
-```
+``` erlang
 map(_, []) -> [];
 map(F, [H|T]) -> [F(H)|map(F,T)].
  
@@ -78,7 +78,7 @@ decr(X) -> X - 1.
 Which can then be tested in the shell:
 
 
-```
+``` erlang
 1> c(hhfuns).
 {ok, hhfuns}
 2> L = [1,2,3,4,5].
@@ -104,7 +104,7 @@ Anonymous functions, or funs, address that problem by letting you declare a spec
 
 匿名函数或者函数，通过让你声明一种特殊的不用命名的内联函数来解决上面提到的问题。他们几乎可以完成正常函数所能完成的所有事情，除了递归调用自己以外(如果他们是匿名的，他们如何能调用自己呢？)，他们语法：
 
-```
+``` erlang
 fun(Args1) ->
         Expression1, Exp2, ..., ExpN;
     (Args2) ->
@@ -116,7 +116,7 @@ fun(Args1) ->
 
 And can be used the following way:
 
-```
+``` erlang
 7> Fn = fun() -> a end.
 #Fun<erl_eval.20.67289768>
 8> Fn().
@@ -135,7 +135,7 @@ Anonymous functions are already pretty dandy for such abstractions but they stil
 
 匿名函数已经是相当高级的抽象，但他们仍然有更多隐藏的能力。
 
-```
+``` erlang
 11> PrepareAlarm = fun(Room) ->
 11>                     io:format("Alarm set in ~s.~n",[Room]),
 11>                     fun() -> io:format("Alarm tripped in ~s! Call Batman!~n",[Room]) end
@@ -159,7 +159,7 @@ To understand closures, one must first understand scope. A function's scope can 
 
 为了理解闭包，首先必须理解作用域。一个函数的作用域可以被想象为保存所有变量及其变量值的地方。 在函数`base(A) -> B = A + 1.`中， 变量A和变量B都被定义在base/1的作用域中。这意味着在`base/1`函数中的任何地方， 你都可以引用变量A和变量B，并获取绑定到他们的值。我说"在任何地方"，不是在开玩笑；在匿名函数中同样可以访问:
 
-```
+``` erlang
 base(A) ->
     B = A + 1,
     F = fun() -> A * B end,
@@ -170,7 +170,7 @@ B and A are still bound to base/1's scope, so the function F can still access th
 
 变量B和变量A始终绑定到`base/1`的作用域，所以函数F也可以访问他们。 这是因为函数F继承了`base/1`的作用域。像所有类型的现实继承一样， 父类不能获取子类所拥有的:
 
-```
+``` erlang
 base(A) ->
     B = A + 1,
     F = fun() -> C = A * B end,
@@ -186,7 +186,7 @@ It is important to note that the inherited scope follows the anonymous function 
 
 注意：继承的作用域会和匿名函数关联，即使当匿名函数被传递给其他函数:
 
-```
+``` erlang
 a() ->
     Secret = "pony",
     fun() -> Secret end.
@@ -198,7 +198,7 @@ b(F) ->
 Then if we compile it:
 如果我们编译它：
 
-```
+``` erlang
 14> c(hhfuns).
 {ok, hhfuns}
 15> hhfuns:b(hhfuns:a()).
@@ -214,7 +214,7 @@ You're most likely to use anonymous functions to carry state around when you hav
 
 当你定义了一个接受多个参数的函数， 但是其中一个参数是一个常量，那么你很有可能利用匿名函数来保持状态：
 
-```
+``` erlang
 16> math:pow(5,2).
 25.0
 17> Base = 2.
@@ -234,7 +234,7 @@ A little trap you might fall into when writing anonymous functions is when you t
 
 当你编写一个尝试重定义作用域的匿名函数时， 你很有可能掉入一个陷阱：
 
-```
+``` erlang
 base() ->
     A = 1,
     (fun() -> A = 2 end)().
@@ -244,7 +244,7 @@ This will declare an anonymous function and then run it. As the anonymous functi
 
 上面的代码表示要声明一个匿名函数，紧接着运行它。由于匿名函数继承了`base/0`的作用域， 尝试使用`=`操作符比较数值2和变量A(绑定了数值1)。它一定会失败。然而是有可能重定义变量的，只是需要在内嵌的函数头中完成：
 
-```
+``` erlang
 base() ->
     A = 1,
     (fun(A) -> A = 2 end)(2).
@@ -265,7 +265,7 @@ The trick is that the name is visible only within the function's scope, not outs
 
 窍门是函数名只在函数作用域内可见， 在函数作用域就不可见。主要的好处是使定义匿名递归函数成为可能。你可以顶一个永远运行的匿名函数：
 
-```
+``` erlang
 18> f(PrepareAlarm), f(AlarmReady).
 ok
 19> PrepareAlarm = fun(Room) ->
@@ -303,7 +303,7 @@ At the beginning of this chapter, I briefly showed how to abstract away two simi
 
 在本章开始， 我简单地展示了如何抽象两个类似的函数为map/2函数。 我可以保证这样一个函数可以使用任何一个列表。函数如下：
 
-```
+``` erlang
 map(_, []) -> [];
 map(F, [H|T]) -> [F(H)|map(F,T)].
 ```
@@ -312,7 +312,7 @@ However, there are many other similar abstractions to build from commonly occurr
 
 然而， 可以从常见递归函数构建更多的类似抽象函数。让我们先看看这两个函数：
 
-```
+``` erlang
 %% only keep even numbers
 even(L) -> lists:reverse(even(L,[])).
  
@@ -336,7 +336,7 @@ The first one takes a list of numbers and returns only those that are even. The 
 
 第一个函数接受一个整型列表， 只返回所有的偶数。第二个函数遍历由{Gender, Age}元组组成的列表，并只返回大于60的女性记录。也许相似之处很难发现，但是我们会发现一些共同之处。两个函数都是操作一个列表，留下那些条件测试成功的元素， 丢弃其他的。从这个概述中我们提取出我们需要的有用信息，并抽象他们：
 
-```
+``` erlang
 filter(Pred, L) -> lists:reverse(filter(Pred, L,[])).
  
 filter(_, [], Acc) -> Acc;
@@ -351,7 +351,7 @@ To use the filtering function we now only need to get the test outside of the fu
 
 通过使用过滤函数，我现在只需要在函数外部做条件测试。 编译这hhfuns模块并测试它：
 
-```
+``` erlang
 1> c(hhfuns).
 {ok, hhfuns}
 2> Numbers = lists:seq(1,10).
@@ -372,7 +372,7 @@ In the previous chapter, another kind of recursive manipulation we applied on li
 
 在前一章中， 我们应用在列表的另外一类递归操作是，依次遍历列表中的每个元素，减少到一个元素。这个过程称为fold， 可以在下面函数中使用：
 
-```
+``` erlang
 %% find the maximum of a list
 max([H|T]) -> max2(T, H).
  
@@ -404,14 +404,14 @@ A subtle element of all three functions that wasn't mentioned yet is that every 
 
 这三个函数另外一个共同之处没有提到，那就是每个函数同需要一个初始值。在`sum/2`中， 我们使用数值0来参与加法计算，数值0是中性的，使用它我们不会污染计算结果。如果是乘法计算，我们就使用数值1作为初始值。`min/1`和`max/1`函数不需要一个默认值：如果列表中只包含负数，并使用数值0作为起始值，那么这个结果就不正确了。所以，我们需要使用列表首元素作为起始点。很遗憾，我们不是总能通过这种方式确定初始值，所以我们把这个判断留给程序自己确定。通过总结这些所有要素，我们可以构建如下抽象：
 
-```
+``` erlang
 fold(_, Start, []) -> Start;
 fold(F, Start, [H|T]) -> fold(F, F(H,Start), T).
 ```
 
 And when tried:
 
-```
+``` erlang
 6> c(hhfuns).
 {ok, hhfuns}
 7> [H|T] = [1,7,3,5,9,0,2,3].   
@@ -432,7 +432,7 @@ What's funny there is that you can represent an accumulator as a single element 
 
 有趣的是你可以把累加器看作是一个单值，也可以看作是一个列表。因此，我们可以使用fold来构建列表。这就意味着在这类场景中fold是通用的， 你可以使用fold来实现作用于列表的几乎任何其他递归函数，甚至包括map 和 filter:
 
-```
+``` erlang
 reverse(L) ->
     fold(fun(X,Acc) -> [X|Acc] end, [], L).
  

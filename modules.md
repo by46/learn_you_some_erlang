@@ -17,7 +17,7 @@ You can see for yourself:
 
 你可以自己试一试：
 
-```
+``` erlang
 1> erlang:element(2, {a,b,c}).
 b
 2> element(2, {a,b,c}).
@@ -49,7 +49,7 @@ There is a large variety of module attributes currently used in Erlang code acro
 
 如今，在Erlang代码中使用了大量的模块属性，事实上， 你甚至可以任意定义你专属的属性。也有一些出现频率很高的预定义属性。 所有的模块属性都按照-Name(Attribute).的形式。 其中只有下列属性是可编译模块所必须的：
 
-```
+``` erlang
 -module(Name).
 ```
 
@@ -59,7 +59,7 @@ It's time to code already! Our first module will be very simple and useless. Ope
 他总是文件的第一个属性， 对于这种情况， 有一个很好的原因：它是当前模块的名字，也是用于从其他模块调用函数的名字， M:F(A)的形式调用.
 是时候开始编程了，我们的第一个模块将会非常简单，并且没有多大用处。 打开你的文本编辑器， 输入如下代码， 然后保存在userless.erl:
 
-```
+``` erlang
 -module(useless).
 ```
 
@@ -67,7 +67,7 @@ This line of text is a valid module. Really! Of course it's useless without func
 
 这行代码就构成了一个合法的模块。 真的！这个模块没有函数。首先，让我们来决定什么函数需要从useless模块导出。要完成这件事， 我们将用到另外一个属性:
 
-```
+``` erlang
 -export([Function1/Arity, Function2/Arity, ..., FunctionN/Arity]).
 ```
 
@@ -83,14 +83,14 @@ Our useless module will first export a useful function named 'add', which will t
 
 我们的useless模块将首先导出一个名叫add的有用的函数，这个函数接受两个参数。下面的-export属性可以被添加到模块声明的后面:
 
-```
+``` erlang
 -export([add/2]).
 ```
 
 And now write the function:
 然后，实现这个函数：
 
-```
+``` erlang
 add(A,B) ->
     A + B.
 ```
@@ -103,7 +103,7 @@ Add the following function (why yes, every tutorial needs a 'Hello world' exampl
 
 添加下列函数， 并且不要忘了把它加入-export属性中。
 
-```
+``` erlang
 %% Shows greetings.
 %% io:format/1 is the standard function used to output text.
 hello() ->
@@ -116,7 +116,7 @@ What we see from this function is that comments are single-line only and begin w
 
 A last function will be added to the module, using both functions add/2 and hello/0:
 
-```
+``` erlang
 greet_and_add_two(X) ->
     hello(),
     add(X,2).
@@ -132,7 +132,7 @@ Had you wanted to be able to call io:format/1 in the same manner as add/2 or any
 
 如果你想以调用`add/2`的方式使用`io:format`, 那你必须在文件开始处，使用`-import(io, [format/1]).`的方式导入外部函数。然后， 你就可以类似`format("hello, world!~n")`方式使用函数。-import属性遵照如下的格式:
 
-```
+``` erlang
 -import(Module, [Function1/Arity, ..., FunctionN/Arity]).
 ```
 
@@ -143,7 +143,7 @@ Importing a function is not much more than a shortcut for programmers when writi
 Your useless module should now look like the following file:
 现在useless模块看上去像下面这个文件：
 
-```
+``` erlang
 -module(useless).
 -export([add/2, hello/0, greet_and_add_two/1]).
  
@@ -178,7 +178,7 @@ Erlang code is compiled to bytecode in order to be used by the virtual machine. 
 It's time to compile our useless module and try it. Open the Erlang shell, type in:
 是时候该尝试编译我们的useless模块了。打开Erlang shell，输入：
 
-```
+``` erlang
 1> cd("/path/to/where/you/saved/the-module/").
 "Path Name to the directory you are in"
 ok
@@ -188,7 +188,7 @@ By default, the shell will only look for files in the same directory it was star
 
 默认情况下，shell只会在当前工作目录下寻找文件，你也可以用Erlang shell提供的cd/1, 进行目录切换。Windows用户需要注意的是使用正斜杠("/")代替路径中的反斜杠("\"）。如果一切就绪，请跟着做:
 
-```
+``` erlang
 2> c(useless).
 {ok,useless}
 ```
@@ -197,7 +197,7 @@ If you have another message, make sure the file is named correctly, that you are
 
 如果你得到的是另外的消息， 首先确认文件的名字是否正确、当前工作目录是否正确、确保在模块中没有错误。如果你成功地编译了代码， 你会发现在useless.erl同目录中多出一个useless.beam文件。这就是被编译的模块。让我们来验证函数：
 
-```
+``` erlang
 3> useless:add(7,2).
 9
 4> useless:hello().
@@ -239,7 +239,7 @@ There are a whole lot of compilation flags existing to get more control over how
 To compile our useless module with some flags, we could do one of the following:
 可以选择一些选项进行编译useless模块， 按照如下方法：
 
-```
+``` erlang
 7> compile:file(useless, [debug_info, export_all]).
 {ok,useless}
 8> c(useless, [debug_info, export_all]).
@@ -250,7 +250,7 @@ You can also be sneaky and define compile flags from within a module, with a mod
 
 你可以在模块中使用模块属性定义编译标志。如果要和上面的编译效果一样， 可以在模块中加入下面这行代码：
 
-```
+``` erlang
 -compile([debug_info, export_all]).
 ```
 
@@ -273,7 +273,7 @@ The first one concerns metadata about modules. I mentioned in the beginning of t
 
 第一个需要关注的模块元数据。在本章一开始，我提到模块属性是描述模块自身的元数据。当我们没有源代码时，可以在哪里找到这些元数据？编译器对我们 非常友好： 当它编译一个模块的时候， 它会收集所有的模块属性，并且保存在module_info/0函数里面。 你可以用以下方式查看useless模块的属性：
 
-```
+``` erlang
 9> useless:module_info().
 [{exports,[{add,2},
                     {hello,0},

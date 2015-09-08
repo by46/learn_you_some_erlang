@@ -30,7 +30,7 @@ Erlang is also strongly typed. A weakly typed language would do implicit type co
 
 Erlang同样是强类型语言。弱类型语言在类型之间进行隐式类型转换。如果Erlang是一种若类型语言的话，那么我们可以执行6=5+"1"这样的操作。实际上， 它会导致一个异常：
 
-```
+``` erlang
 1> 6 + "1".
 ** exception error: bad argument in an arithmetic expression
         in operator  +/2
@@ -48,7 +48,7 @@ Erlang, like many languages, changes the type of a term by casting it into anoth
 
 更其他语言类似， Erlang通过转换把一种类型变为另外一种类型。是通过一组内置的函数，因为很多转换不再由Erlang代码完成。这些函数都有类似的形式：<type>_to_<type>类型， 都是erlang模块中实现。这有一些例子：
 
-```
+``` erlang
 1> erlang:list_to_integer("54").
 54
 2> erlang:integer_to_list(54).
@@ -71,7 +71,7 @@ And so on. We're hitting on a language wart here: because the scheme <type>_to_<
 
 这样的方式也是一种编程语言的缺点： 因为<type>_to_<type>的形式被使用， 一旦有新的类型被加入语言中， 那也同样的需要添加一系列关于新类型的转换内置函数。Erlang所有的转换函数列在下面：
 
-```
+``` erlang
 atom_to_binary/2, atom_to_list/1, binary_to_atom/2, binary_to_existing_atom/2, binary_to_list/1, bitstring_to_list/1, binary_to_term/1, float_to_list/1, fun_to_list/1, integer_to_list/1, integer_to_list/2, iolist_to_binary/1, iolist_to_atom/1, list_to_atom/1, list_to_binary/1, list_to_bitstring/1, list_to_existing_atom/1, list_to_float/1, list_to_integer/2, list_to_pid/1, list_to_tuple/1, pid_to_list/1, port_to_list/1, ref_to_list/1, term_to_binary/1, term_to_binary/2 and tuple_to_list/1.
 ```
 
@@ -96,7 +96,7 @@ There are functions dedicated to this task. They will take a single argument and
 
 这里存在一些函数专门解决这类问题。他们接受一个参数，如果参数是正确的类型，则返回true，否则返回false。他们是能应用在guard表达式中的少数几个函数中的一部分，用类型命名的内置函数:
 
-```
+``` erlang
 is_atom/1           is_binary/1        
 is_bitstring/1      is_boolean/1        is_builtin/3       
 is_float/1          is_function/1       is_function/2      
@@ -113,7 +113,7 @@ Note: type test BIFs constitute more than half of the functions allowed in guard
 
 注意：在guard表达式中允许使用的内置函数中，有超过半数都是类型测试函数。剩下的内置函数不是用于类型测试的， 他们列在下面：
 
-```
+``` erlang
 abs(Number), bit_size(Bitstring), byte_size(Bitstring), element(N, Tuple), float(Term), hd(List), length(List), node(), node(Pid|Ref|Port), round(Number), self(), size(Tuple|Bitstring), tl(List), trunc(Number), tuple_size(Tuple).
 ```
 
@@ -125,7 +125,7 @@ It may seem like Erlang data structures are relatively limited, but lists and tu
 
 这看上去Erlang的数据结构相对有限， 其实列表和元组通常足以构造其他复杂结构， 并且没有任何后顾之忧。例如：二叉树的节点可以用{node, Value, Left, Right}来表示， Left 和Right既可以是类似节点，或者是空元组。我可以使用下列结构来表示我自己:
 
-```
+``` erlang
 {person, {name, <<"Fred T-H">>},
 {qualities, ["handsome", "smart", "honest", "objective"]},
 {faults, ["liar"]},
@@ -175,7 +175,7 @@ The best example would come from the implementation of the function and, which w
 
 最好的例子来自函数的实现，要实现一个接受两个boolean类型的值，如果他们都为true，则返回true，否则返回false。 在 haskell的类型系统中， 函数应该写成这样：and::bool -> bool -> bool.如果在erlang中要实现同样的功能， 它可以写成这样：
 
-```
+``` erlang
 and(false, _) -> false;
 and(_, false) -> false;
 and(true,true) -> true.
@@ -193,7 +193,7 @@ TypEr will be used to generate type annotations for functions. Used on this smal
 
 TypEr用来为函数生成类型注释。这有一个关于FIFO实现的例子， 它会推断出下面的类型声明：
 
-```
+``` erlang
 %% File: fifo.erl
 %% --------------
 -spec new() -> {'fifo',[],[]}.

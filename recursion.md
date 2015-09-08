@@ -30,7 +30,7 @@ How can such a function be translated from mathematical notation to Erlang? The 
 
 像这样一个函数，如何才能从数学符号翻译成Erlang代码？转换非常简单。看一看公式的各个部分：n!， 1 ，n((n - 1)!) 和if语句。 那么我们就此等到一个函数名(n!), guard子句（if语句）和 函数体（1 和 n((n - 1)!)。我们可以fac(N)来作为函数名， 然后我们会得到下列函数：
 
-```
+``` erlang
 -module(recursive).
 -export([fac/1]).
  
@@ -41,7 +41,7 @@ fac(N) when N > 0  -> N*fac(N-1).
 And this factorial function is now done! It's pretty similar to the mathematical definition, really. With the help of pattern matching, we can shorten the definition a bit:
 阶乘函数已经完成！它和数学定义非常相像。使用模式匹配，我们可以让它定义更简单一些：
 
-```
+``` erlang
 fac(0) -> 1;
 fac(N) when N > 0 -> N*fac(N-1).
 ```
@@ -70,7 +70,7 @@ With most recursive functions, I find the base case easier to write first: what'
 
 很大多数递归函数一样， 我首先完成比较容易的终止条件。能计算出长度的最简单的输入是什么？无疑是空列表， 它的长度为0. 所以我们需要记下[]的长度为0. 然后第二简单的情况当然要属包含一个元素的类表：[_] = 1。我可以这样实现函数：
 
-```
+``` erlang
 len([]) -> 0;
 len([_]) -> 1.
 ```
@@ -79,7 +79,7 @@ Awesome! We can calculate the length of lists, given the length is either 0 or 1
 
 我可以计算长度为0或者1的列表的长度了！的确很有用。同样这样的函数也没有多大用处， 因为它们不能递归，那么让我们来见识一下最困难的部分：为了应对长度超过1的列表，我们应该扩展函数，使函数自己调用自己。正如我们之前提到的， 列表可以递归的定义：[1|[2|..[n]]]。这就意味着我们可以使用[H|T]的模式匹配包含多个元素的列表，因为包含一个元素的列表可以定义为[X|[]]， 包含两个元素的列表可以定义为[X|[Y|[]]]。注意第二个元素本身就是一个列表。列表中给定的值被计数为1， 函数可以重写为：
 
-```
+``` erlang
 len([]) -> 0;
 len([_|T]) -> 1 + len(T).
 ```
@@ -88,7 +88,7 @@ And now you've got your own recursive function to calculate the length of a list
 
 现在你已经得到了你自己的递归函数用于计算列表的长度。看看len/1函数式如何运作的。让我使用[1,2,3,4]作为输入:
 
-```
+``` erlang
 len([1,2,3,4]) = len([1 | [2,3,4])
                = 1 + len([2 | [3,4]])
                = 1 + 1 + len([3 | [4]])
@@ -122,7 +122,7 @@ In order to achieve this, we will need to hold an extra temporary variable as a 
 
 为了完成这个目标，在我们的函数中，我需要持有一个额外的临时变量。我会重新演示关于阶乘函数的概念，但是这次我会用尾递归实现它。前面提到的临时变量有时被称为累加器， 扮演存储我们计算的结果的地方，它可以限制堆栈的增长：
 
-```
+``` erlang
 tail_fac(N) -> tail_fac(N,1).
  
 tail_fac(0,Acc) -> Acc;
@@ -133,7 +133,7 @@ Here, I define both tail_fac/1 and tail_fac/2. The reason for this is that Erlan
 
 这里，我同时定义二楼tail_fac/1 和tail_fac/2两个函数。 原因是Erlang不允许在函数中定义默认值(不同的参数数目意味着是不同的函数)，所以我们手动完成定义。在这个特殊的例子中， tail_fac/1类似是在尾递归函数tail_fac/2之上的抽象。tail_fac/2隐藏的累加器的细节对任何人都没有吸引力，所以我们仅仅需要导出tail_fac/2函数。当我们运行这个函数时， 它会按照下面的方式展开执行：
 
-```
+``` erlang
 tail_fac(4)    = tail_fac(4,1)
 tail_fac(4,1)  = tail_fac(4-1, 4*1)
 tail_fac(3,4)  = tail_fac(3-1, 3*4)
@@ -150,14 +150,14 @@ With an example of tail recursive factorials under your belt, you might be able 
 
 通过尾递归阶乘函数的例子，你已经明白如何将这种模式应用到我们的len/1函数中。我们需要做的就是让我们的递归调用变成“单独”.如果你喜欢栩栩如生的例子， 你只需要想象一下把+1的部分放在额外参数里面:
 
-```
+``` erlang
 len([]) -> 0;
 len([_|T]) -> 1 + len(T).
 ```
 
 becomes:
 
-```
+``` erlang
 tail_len(L) -> tail_len(L,0).
  
 tail_len([], Acc) -> Acc;
@@ -180,7 +180,7 @@ The first function we'll write will be duplicate/2. This function takes an integ
 
 我们第一个要写的例子是duplicate/2函数。 这个函数接受一个整数N， 一个任意类型的项元Term作为参数。它会创建一个包含N个Term的列表。像以前一样，首先找出base case。 对于duplicate/2， 回答计算零次重复最容易。我们只需要返回一个空列表， 不关心Term是什么数据， 其他的情况都需要根据base case进行计算。我们同样会禁止负数，因为没有-n次的概念：
 
-```
+``` erlang
 duplicate(0,_) ->
     [];
 duplicate(N,Term) when N > 0 ->
@@ -190,7 +190,7 @@ duplicate(N,Term) when N > 0 ->
 Once the basic recursive function is found, it becomes easier to transform it into a tail recursive one by moving the list construction into a temporary variable:
 当我们找到基础递归函数之后，把它变成尾递归就很容易了， 只要把列表构造的部分放入临时变量中就可以了：
 
-```
+``` erlang
 tail_duplicate(N,Term) ->
 tail_duplicate(N,Term,[]).
  
@@ -204,7 +204,7 @@ Success! I want to change the subject a little bit here by drawing a parallel be
 
 成功！我想稍微改变一下主题， 对比一下尾递归和循环的区别。我们的tail_duplicate/2函数拥有所有的通用部分。如果我们用虚拟的函数，它看上去会像这样：
 
-```
+``` erlang
 function(N, Term) ->
     while N > 0 ->
         List = [Term|List],
@@ -221,7 +221,7 @@ There's also an interesting property that we can 'discover' when we compare recu
 
 当我们比较递归和尾递归的时候，我们也发现一些有趣的属性。对于这个函数，base case 是一个空列表， 所以我们没有任何东西需要reserve。当传入空列表时，函数返回空列表。其他情况，我们可以通过base case 来计算出来， 就像duplicate/2函数。 我们的函数通过[H|T]模式遍历整个列表，把H放到剩余的列表后面:
 
-```
+``` erlang
 reverse([]) -> [];
 reverse([H|T]) -> reverse(T)++[H].
 ```
@@ -230,7 +230,7 @@ On long lists, this will be a true nightmare: not only will we stack up all our 
 
 对于长列表， 这将变成噩梦：每一次append操作都需要进行压栈操作，不仅如此每一次append操作都需要遍历整个列表，整个过程大概如下：
 
-```
+``` erlang
 reverse([1,2,3,4]) = [4]++[3]++[2]++[1]
                       ↑    ↵
                    = [4,3]++[2]++[1]
@@ -244,7 +244,7 @@ This is where tail recursion comes to the rescue. Because we will use an accumul
 
 如果我们用一种更为人所熟知的方式，正如下所示:
 
-```
+``` erlang
 tail_reverse(L) -> tail_reverse(L,[]).
  
 tail_reverse([],Acc) -> Acc;
@@ -253,7 +253,7 @@ tail_reverse([H|T],Acc) -> tail_reverse(T, [H|Acc]).
 
 If we represent this one in a similar manner as the normal version, we get:
 
-```
+``` erlang
 tail_reverse([1,2,3,4]) = tail_reverse([2,3,4], [1])
                         = tail_reverse([3,4], [2,1])
                         = tail_reverse([4], [3,2,1])
@@ -269,7 +269,7 @@ Another function to implement could be sublist/2, which takes a list L and an in
 
 另外一个实现的函数是sublist/2, 接受一个列表参数L和一个整数N，返回列表L中头N个元素。 例如， sublist([1,2,3,4,5,6],3)将会返回[1,2,3]。同样的， base case 是尝试获取从列表中获取0个元素。注意， 因为sublist/2有一些不同之处。你会发现有第二个base base，那就是列表元素是一个空列表。如果我们不检查空列表， 一个错误将会发生，例如sublist([1],2)。 在这种情况下，我们希望返回列表[1]。那么接下来的事情就简单了，只是简单的遍历整个列表，确保每个元素都会被遍历，直到获取到足够多的元素:
 
-```
+``` erlang
 sublist(_,0) -> [];
 sublist([],_) -> [];
 sublist([H|T],N) when N > 0 -> [H|sublist(T,N-1)].
@@ -278,7 +278,7 @@ sublist([H|T],N) when N > 0 -> [H|sublist(T,N-1)].
 Which can then be transformed to a tail recursive form in the same manner as before:
 我们可以采用同样的方法，把 它转换为尾递归方法:
 
-```
+``` erlang
 tail_sublist(L, N) -> tail_sublist(L, N, []).
  
 tail_sublist(_, 0, SubList) -> SubList;
@@ -291,7 +291,7 @@ There's a flaw in this function. A fatal flaw! We use a list as an accumulator i
 
 在这个函数中也有一些瑕疵。一个致命的瑕疵！我们用同样的方式，使用一个列表作为加速器，来反转我们的列表。当你编译函数，并执行sublist([1,2,3,4,5,6],3)将不会返回[1,2,3]，而是返回的是[3,2,1]。我们唯一能做的是在返回最后结果之前颠倒列表的顺序。简单的按照如下方式更改tail_sublist/2函数:
 
-```
+``` erlang
 tail_sublist(L, N) -> reverse(tail_sublist(L, N, [])).
 ```
 
@@ -307,14 +307,14 @@ To push things a bit further, we'll write a zipping function. A zipping function
 
 为了推动事情更远一点， 我们将写一个zip函数。zip函数需要接受两个相同长度的列表作为参数，把他们连接成一个包含两个元素的元组的列表。我们的zip函数将像下面的方式工作：
 
-```
+``` erlang
 1> recursive:zip([a,b,c],[1,2,3]).
 [{a,1},{b,2},{c,3}]
 ```
 
 Given we want our parameters to both have the same length, the base case will be zipping two empty lists:
 
-```
+``` erlang
 zip([],[]) -> [];
 zip([X|Xs],[Y|Ys]) -> [{X,Y}|zip(Xs,Ys)].
 ```
@@ -323,7 +323,7 @@ However, if you wanted a more lenient zip function, you could decide to have it 
 
 如果假设我们的两个参数长度相同，那么base case就是接受两个空列表:
 
-```
+``` erlang
 lenient_zip([],_) -> [];
 lenient_zip(_,[]) -> [];
 lenient_zip([X|Xs],[Y|Ys]) -> [{X,Y}|lenient_zip(Xs,Ys)].
@@ -358,7 +358,7 @@ We will need two functions for this one: a first function to partition the list 
 
 我们需要两个函数：第一个函数用于把列表分成分别包含“小”元素和“大”元素两个部分，第二个函数用于把两个列表合并成一个。首先我来写第二个函数：
 
-```
+``` erlang
 quicksort([]) -> [];
 quicksort([Pivot|Rest]) ->
     {Smaller, Larger} = partition(Pivot,Rest,[],[]),
@@ -367,7 +367,7 @@ quicksort([Pivot|Rest]) ->
 
 This shows the base case, a list already partitioned in larger and smaller parts by another function, the use of a pivot with both lists quicksorted appended before and after it. So this should take care of assembling lists. Now the partitioning function:
 
-```
+``` erlang
 partition(_,[], Smaller, Larger) -> {Smaller, Larger};
 partition(Pivot, [H|T], Smaller, Larger) ->
     if H =< Pivot -> partition(Pivot, T, [H|Smaller], Larger);
@@ -377,7 +377,7 @@ partition(Pivot, [H|T], Smaller, Larger) ->
 
 And you can now run your quicksort function. If you've looked for Erlang examples on the Internet before, you might have seen another implementation of quicksort, one that is simpler and easier to read, but makes use of list comprehensions. The easy to replace parts are the ones that create new lists, the partition/4 function:
 
-```
+``` erlang
 lc_quicksort([]) -> [];
 lc_quicksort([Pivot|Rest]) ->
     lc_quicksort([Smaller || Smaller <- Rest, Smaller =< Pivot])
@@ -406,7 +406,7 @@ To represent nodes, tuples are an appropriate data structure. For our implementa
 
 Let's start building a module for our very basic tree implementation. The first function, empty/0, returns an empty node. The empty node is the starting point of a new tree, also called the root:
 
-```
+``` erlang
 -module(tree).
 -export([empty/0, insert/3, lookup/2]).
 ```
@@ -418,7 +418,7 @@ To add content to a tree, we must first understand how to recursively navigate t
 
 To find an empty node starting from the root, we must use the fact that the presence of Smaller and Larger nodes let us navigate by comparing the new key we have to insert to the current node's key. If the new key is smaller than the current node's key, we try to find the empty node inside Smaller, and if it's larger, inside Larger. There is one last case, though: what if the new key is equal to the current node's key? We have two options there: let the program fail or replace the value with the new one. This is the option we'll take here. Put into a function all this logic works the following way:
 
-```
+``` erlang
 insert(Key, Val, {node, 'nil'}) ->
     {node, {Key, Val, {node, 'nil'}, {node, 'nil'}}};
 insert(NewKey, NewVal, {node, {Key, Val, Smaller, Larger}}) when NewKey < Key ->
@@ -433,7 +433,7 @@ Note here that the function returns a completely new tree. This is typical of fu
 
 What's left to do on this example tree implementation is creating a lookup/2 function that will let you find a value from a tree by giving its key. The logic needed is extremely similar to the one used to add new content to the tree: we step through the nodes, checking if the lookup key is equal, smaller or larger than the current node's key. We have two base cases: one when the node is empty (the key isn't in the tree) and one when the key is found. Because we don't want our program to crash each time we look for a key that doesn't exist, we'll return the atom 'undefined'. Otherwise, we'll return {ok, Value}. The reason for this is that if we only returned Value and the node contained the atom 'undefined', we would have no way to know if the tree did return the right value or failed to find it. By wrapping successful cases in such a tuple, we make it easy to understand which is which. Here's the implemented function:
 
-```
+``` erlang
 lookup(_, {node, 'nil'}) ->
     undefined;
 lookup(Key, {node, {Key, Val, _, _}}) ->
@@ -446,7 +446,7 @@ lookup(Key, Larger).
 
 And we're done. Let's test it with by making a little email address book. Compile the file and start the shell:
 
-```
+``` erlang
 1> T1 = tree:insert("Jim Woodland", "jim.woodland@gmail.com", tree:empty()).
 {node,{"Jim Woodland","jim.woodland@gmail.com",
     {node,nil},
@@ -474,7 +474,7 @@ And we're done. Let's test it with by making a little email address book. Compil
 
 And now you can lookup email addresses with it:
 
-```
+``` erlang
 4> tree:lookup("Anita Bath", Addresses).
 {ok, "abath@someuni.edu"}
 5> tree:lookup("Jacques Requin", Addresses).

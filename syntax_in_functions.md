@@ -8,7 +8,7 @@ Now that we have the ability to store and compile our code, we can begin to writ
 
 既然我们已经能保存和编译代码，那么我就 可以编写更多 高级函数。到目前 为止， 我们编写的函数都非常简单，有点平淡无奇。我们会接触更多有意思的东西。 我将要编写的第一个函数需要根据性别来进行不同欢迎。在大多数语言中， 你可能会编写出和下列代码类似的代码：
 
-```
+``` erlang
 function greet(Gender,Name)
     if Gender == male then
         print("Hello, Mr. %s!", Name)
@@ -23,7 +23,7 @@ With pattern-matching, Erlang saves you a whole lot of boilerplate code. A simil
 
 使用模式匹配， Erlang减少很多代码。 一个类似的函数在Erlang看上去会像这样：
 
-```
+``` erlang
 greet(male, Name) ->
     io:format("Hello, Mr. ~s!", [Name]);
 greet(female, Name) ->
@@ -36,7 +36,7 @@ I'll admit that the printing function is a lot uglier in Erlang than in many oth
 
 我必须承认Erlang中的答应函数比其他语言中的更难看一些，但是这不是重点。这里主要不同之处是：我们使用了模式匹配定义了那个函数分支会被使用，同时绑定我们需要的值。所以我们不需要绑定这些，然后再比较它们！ 可以替换下列代码：
 
-```
+``` erlang
 function(Args)
     if X then
         Expression
@@ -48,7 +48,7 @@ function(Args)
 
 We write:
 
-```
+``` erlang
 function(X) ->
     Expression;
 function(Y) ->
@@ -73,7 +73,7 @@ Pattern matching in functions can get more complex and powerful than that. As yo
 
 在上面这些函数中的模式匹配可以更复杂和更强大。我们可以模式匹配列表， 获取表头和表尾。开始一个叫functions的新模块， 我们将编写多个函数用于探索对我们可用的模式匹配方法。
 
-```
+``` erlang
 -module(functions).
 -compile(export_all). %% replace with -export() later, for God's sake!
 ```
@@ -82,7 +82,7 @@ The first function we'll write is head/1, acting exactly like erlang:hd/1 which 
 
 第一个编写的函数head/1， 更erlang:hd/1函数的作用相同， 接受一个list作为参数，并返回第一个元素。我们会借助Cons operator(|)的帮助。
 
-```
+``` erlang
 head([H|_]) -> H.
 ```
 
@@ -90,7 +90,7 @@ If you type functions:head([1,2,3,4]). in the shell (once the module is compiled
 
 如果你在shell中输入function:head([1,2,3,4]).(当然模块被编译之后), 你可以预料到返回结果是1。因此， 你可以创建一个函数获取列表中的第二元素。
 
-```
+``` erlang
 second([_,X|_]) -> X.
 ```
 
@@ -98,7 +98,7 @@ The list will just be deconstructed by Erlang in order to be pattern matched. Tr
 
 下面的例子只是为了用于演示而已。
 
-```
+``` erlang
 1> c(functions).
 {ok, functions}
 2> functions:head([1,2,3,4]).
@@ -111,7 +111,7 @@ This could be repeated for lists as long as you want, although it would be impra
 
 只要你愿意你可以按照上面的方法获取列表中的每个一个元素， 只是这样的方式对于拥有上千个元素列表有些不切实际。可以通过编写递归函数解决这个问题，我们会在后面看到该如何做。
 
-```
+``` erlang
 same(X,X) ->
     true;
 same(_,_) ->
@@ -132,7 +132,7 @@ Back to our code: what happens when you call same(a,a) is that the first X is se
 
 回到我们的代码： 当你调用same(a, a)函数时，第一个X被视为未绑定变量，它会自动绑定为a，然后当Erlang检查这个第二个变量时，然后X变量已经绑定值了。比较两个值然后查看是否匹配。这模式匹配成功， 函数返回true。 如果两个值不相等， 匹配失败，第二个函数子句被执行， 这个函数并不关心参数的内容， 然后返回false。这个函数高效地接受任意类型的参数！ 不管是lists还是一个变量值，对任何类型的数据函数都能很好工作。做为高阶的例子，但是只有在才格式正确的情况下，下列函数才打印时间。
 
-```
+``` erlang
 valid_time({Date = {Y,M,D}, Time = {H,Min,S}}) ->
     io:format("The Date tuple (~p) says today is: ~p/~p/~p,~n",[Date,Y,M,D]),
     io:format("The time tuple (~p) indicates: ~p:~p:~p.~n", [Time,H,Min,S]);
@@ -144,7 +144,7 @@ Note that it is possible to use the = operator in the function head, allowing us
 
 在一个函数中那样， 可以用 = 操作符匹配整个整个tuple内容。 这个函数可以按照下列按时测试。
 
-```
+``` erlang
 4> c(functions).
 {ok, functions}
 5> functions:valid_time({{2011,09,06},{09,04,43}}).
@@ -169,7 +169,7 @@ Guards are additional clauses that can go in a function's head to make pattern m
 
 Guard是额外子句，可以放在函数的头部，使模式匹配更具表达性。正如上面提到的，模式匹配的限制在于，它不能表达区间值和特定数据类型的匹配。有一个概念是我们无法用模式匹配表达的， 这就是计数： 12岁的篮球选手参加俱乐部联会是不是太矮了？对于你来说，一步跨过相当手臂长度的距离是不是太长了？你是不是太老或者太年轻而无法开车？你不能用模式匹配回答这些问题。 我的意思是你不能像下面这样来回答开车的问题：
 
-```
+``` erlang
 old_enough(0) -> false;
 old_enough(1) -> false;
 old_enough(2) -> false;
@@ -183,7 +183,7 @@ But it would be incredibly impractical. You can do it if you want, but you'll be
 
 但是这将是非常不切实际。 你确实可以这样做，但是你可以能会写非常多的代码。如果你想改变注意，那可以开始一个叫guards的新模块来正确解决开车的问题。
 
-```
+``` erlang
 old_enough(X) when X >= 16 -> true;
 old_enough(_) -> false.
 ```
@@ -192,7 +192,7 @@ And you're done! As you can see, this is much shorter and cleaner. Note that a b
 
 正如你所见的， 代码变得更短，也更清楚了。记住，对于guard表达式的一条基本规则就是它们必须返回true来表示成功。如果guard表达式返回false或者抛出一个异常，那它将会失败。假设现在我们禁止104岁以上的人开车。现在对于开车合法的年龄是从16岁到104岁。 我们应该怎么做呢， 那就让我们加入第二个guard分支。
 
-```
+``` erlang
 right_age(X) when X >= 16, X =< 104 ->
     true;
 right_age(_) ->
@@ -203,7 +203,7 @@ The comma (,) acts in a similar manner to the operator andalso and the semicolon
 
 逗号的作用和andalso操作符一样， 分号和orelse的作用一样。每个子guard表达式都通过才能使整个guard表达式通过。我们可以像下列这样写代码。
 
-```
+``` erlang
 wrong_age(X) when X < 16; X > 104 ->
     true;
 wrong_age(_) ->
@@ -243,7 +243,7 @@ To see how similar to guards the if expression is, look at the following example
 
 为了了解guard表达式和if表示究竟有多相似， 看看下面的例子。
 
-```
+``` erlang
 -module(what_the_if).
 -export([heh_fine/0]).
  
@@ -262,7 +262,7 @@ heh_fine() ->
 
 Save this as what_the_if.erl and let's try it:
 
-```
+``` erlang
 1> c(what_the_if).
 ./what_the_if.erl:12: Warning: no clause will ever match
 ./what_the_if.erl:12: Warning: the guard for this clause evaluates to 'false'
@@ -278,7 +278,7 @@ Uh oh! the compiler is warning us that no clause from the if on line 12 (1 =:= 2
 
 ![](/images/ch2/labyrinth.png)
 
-```
+``` erlang
 oh_god(N) ->
     if N =:= 2 -> might_succeed;
         true -> always_does  %% this is Erlang's if's 'else!'
@@ -289,7 +289,7 @@ And now if we test this new function (the old one will keep spitting warnings, i
 
 如果我们测试这个新的函数（这旧的函数依然会抛出警告， 忽略它，或者把他们当作一个提醒）
 
-```
+``` erlang
 3> c(what_the_if).
 ./what_the_if.erl:12: Warning: no clause will ever match
 ./what_the_if.erl:12: Warning: the guard for this clause evaluates to 'false'
@@ -307,7 +307,7 @@ Here's another function showing how to use many guards in an if expression. The 
 %% note, this one would be better as a pattern match in function heads!
 %% I'm doing it this way for the sake of the example.
 
-```
+``` erlang
 help_me(Animal) ->
     Talk = if Animal == cat  -> "meow";
         Animal == beef -> "mooo";
@@ -320,7 +320,7 @@ help_me(Animal) ->
 
 And now we try it:
 
-```
+``` erlang
 6> c(what_the_if).
 ./what_the_if.erl:12: Warning: no clause will ever match
 ./what_the_if.erl:12: Warning: the guard for this clause evaluates to 'false'
@@ -339,7 +339,7 @@ It may be more FAMILIAR, but that doesn't mean 'else' is a good thing. I know th
 
 这会更友好， 但是这并不意味着else就是一件好事。我知道在Erlang中，书写'; true ->'代替'else'是一件非常容易的事，但是这是一件非常糟糕的事情。只是在写代码的时候比较让人厌烦， 但是对读代码或多或少有些帮助。
 
-```
+``` erlang
                           by
     if X > Y -> a()     if X > Y  -> a()
      ; true  -> b()      ; X =< Y -> b()
@@ -376,7 +376,7 @@ As you're probably getting pretty familiar with the syntax, we won't need too ma
 
 由于你可能已经很熟悉这个语法了，所以我们没有比较使用例子。对于这个， 我们将会写一个向集合（唯一值的集合）中添加元素的函数，这个集合包含一个未排序的列表。就高效而言，这个例子可能是最糟糕实现， 但是我们像展示的是语言:
 
-```
+``` erlang
 insert(X,[]) ->
     [X];
 insert(X,Set) ->
@@ -394,7 +394,7 @@ In this case, the pattern matching was really simple. It can get more complex (y
 
 这个例子中， 模式匹配真的很简单。 它可以变得更复杂一些:
 
-```
+``` erlang
 beach(Temperature) ->
     case Temperature of
         {celsius, N} when N >= 20, N =< 45 ->
@@ -412,7 +412,7 @@ Here, the answer of "is it the right time to go to the beach" is given in 3 diff
 
 这里有一个关于“是否适合去海滩”的例子， 例子中的函数接受三种温度系统作为输入参数： 摄氏，绝对温标和华氏温标。为了返回一个合适的回答，模式匹配和guard子句被一起使用。正如之前指出的case表达式和一堆有用guard的函数非常相似。事实上， 我们可以按照下列方式书写代码:
 
-```
+``` erlang
 beachf({celsius, N}) when N >= 20, N =< 45 ->
     'favorable';
 ...
@@ -433,7 +433,7 @@ Which to use is rather hard to answer. The difference between function calls and
 
 该使用那个非常难回答。 函数调用和case子句之间的区别非常小：事实上， 在底层处理中，他们的呈现方式是一样，就执行效率来说， 他们的开销是一样。他们之间的一个不同之处是， 对于一个参数时，函数是需要求值的：funcation(A, B)-> … end. 可以针对A和B的guard子句和模式匹配， 但是case表达式需要被规范化， 如下所示：
 
-```
+``` erlang
 case {A,B} of
     Pattern Guards -> ...
 end.

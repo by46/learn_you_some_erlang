@@ -187,7 +187,7 @@ This hardware interface lets us have a little bit of design time to ourselves. W
 next_round, which gets translated to a single call with the same name.
 We can start our implementation with this basic event handler skeleton:
 
-```
+``` erlang
 -module(curling_scoreboard).
 -behaviour(gen_event).
  
@@ -217,7 +217,7 @@ This is a skeleton that we can use for every gen_event callback module out there
 
 对于所有gen_event 回调模块我们都可以采用这个代码框架结构。现在，我们积分牌事件处理器只是简单的向前调用硬件模块。可以使用gen_event:notify/2 来产生事件，所以协定的事件处理函数只需要在handle_event/2中处理。 curling_scoreboard.erl代码更新如下：
 
-```
+``` erlang
 -module(curling_scoreboard).
 -behaviour(gen_event).
  
@@ -249,7 +249,7 @@ handle_info(_, State) ->
 You can see the updates done to the handle_event/2 function. Trying it:
 你可以发现在handle_event/2函数中的变更:
 
-```
+``` erlang
 1> c(curling_scoreboard_hw).
 {ok,curling_scoreboard_hw}
 2> c(curling_scoreboard).
@@ -289,7 +289,7 @@ One awkward thing with the code snippet above is that we're forced to call the g
 
 上面代码有一件尴尬的事情，我们必须直接调用gen_event模块，并且必须向所有人公布我们的协议。更好的选择是我们提供一个抽象的模块来封装这些所有的细节。这也许会对我有使用我们的代码的人会更好一些。如果我们要修改内部协议结构，这样做也会有所帮助。这样也是我们可以指定哪个handler是必须要包含在我们标准的冰壶比赛中:
 
-```
+``` erlang
 -module(curling).
 -export([start_link/2, set_teams/3, add_points/3, next_round/1]).
  
@@ -312,7 +312,7 @@ next_round(Pid) ->
 
 And now running it:
 
-```
+``` erlang
 1> c(curling).
 {ok,curling}
 2> {ok, Pid} = curling:start_link("Pirates", "Scotsmen").
@@ -345,7 +345,7 @@ Basically, whenever a news organization feels like getting into the game feed, t
 
 The first thing to do is update the curling.erl module with the new interface. Because we want things to be easy to use, we'll only add two functions, join_feed/2 and leave_feed/2. Joining the feed should be doable just by inputting the right Pid for the event manager and the Pid to forward all the events to. This should return a unique value that can then be used to unsubscribe from the feed with leave_feed/2:
 
-```
+``` erlang
 %% Subscribes the pid ToPid to the event feed.
 %% The specific event handler for the newsfeed is
 %% returned in case someone wants to leave
@@ -360,7 +360,7 @@ leave_feed(Pid, HandlerId) ->
 
 Note that I'm using the technique described earlier for multiple handlers ({curling_feed, make_ref()}). You can see that this function expects a gen_event callback module named curling_feed. If I only used the name of the module as a HandlerId, things would have still worked fine,except that we would have no control on which handler to delete when we're done with one instance of it. The event manager would just pick one of them in an undefined manner. Using a Ref makes sure that some guy from the Head-Smashed-In Buffalo Jump press leaving the place won't disconnect a journalist from The Economist (no idea why they'd do a report on curling, but what do you know). Anyway, here is the implementation I've made of the curling_feed module:
 
-```
+``` erlang
 -module(curling_feed).
 -behaviour(gen_event).
  
@@ -389,7 +389,7 @@ terminate(_Reason, _State) ->
 
 The only interesting thing here is still the handle_event/2 function, which blindly forwards all events to the subscribing Pid. Now when we use the new modules:
 
-```
+``` erlang
 1> c(curling), c(curling_feed).
 {ok,curling_feed}
 2> {ok, Pid} = curling:start_link("Saskatchewan Roughriders", "Ottawa Roughriders").
@@ -433,7 +433,7 @@ That's quite a wart, but at least you know about it. You can try and switch your
 
 We're not done yet! what happens if some member of the media is not there on time? We need to be able to tell them from the feed what the current state of the game is. For this, we'll write an additional event handler named curling_accumulator. Again, before writing it entirely, we might want to add it to the curling module with the few calls we want:
 
-```
+``` erlang
 -module(curling).
 -export([start_link/2, set_teams/3, add_points/3, next_round/1]).
 -export([join_feed/2, leave_feed/2]).
@@ -457,7 +457,7 @@ game_info(Pid) ->
 
 A thing to notice here is that the game_info/1 function uses only curling_accumulator as a handler id. In the cases where you have many versions of the same handler, the hint about using make_ref() (or any other means) to ensure you write to the right handler still holds. Also note that I made the curling_accumulator handler start automatically, much like the scoreboard. Now for the module itself. It should be able to hold state for the curling game: so far we have teams, score and rounds to track. This can all be held in a state record, changed on each event received. Then, we will only need to reply to the game_data call, as below:
 
-```
+``` erlang
 -module(curling_accumulator).
 -behaviour(gen_event).
  
@@ -497,7 +497,7 @@ terminate(_Reason, _State) ->
 
 So you can see we basically just update the state until someone asks for game details, at which point we'll be sending them back. We did this in a very basic way. A perhaps smarter way to organize the code would have been to simply keep a list of all the events to ever happen in the game so we could send them back at once each time a new process subscribes to the feed. This won't be needed here to show how things work, so let's focus on using our new code:
 
-```
+``` erlang
 1> c(curling), c(curling_accumulator).
 {ok,curling_accumulator}
 2> {ok, Pid} = curling:start_link("Pigeons", "Eagles").
