@@ -314,7 +314,11 @@ Dealing with Exceptions
 
 I've already mentioned quite a few times that throws, errors and exits can be handled. The way to do this is by using a try ... catch expression.
 
+我已经提到过多次，throw，error和exit是可以被处理。是通过`tryy...catch`表达式来处理。
+
 A try ... catch is a way to evaluate an expression while letting you handle the successful case as well as the errors encountered. The general syntax for such an expression is:
+
+`try..catch`可以对摸个表达式求值，这样即可以处理正常情况，也可以处理异常情况。
 
 ``` erlang
 try Expression of
@@ -332,21 +336,27 @@ end.
 
 The Expression in between try and of is said to be protected. This means that any kind of exception happening within that call will be caught. The patterns and expressions in between the try ... of and catch behave in exactly the same manner as a case ... of. Finally, the catch part: here, you can replace TypeOfError by either error, throw or exit, for each respective type we've seen in this chapter. If no type is provided, a throw is assumed. So let's put this in practice.
 
+`Expression` 表达式放在`try`和`if`之间，就表示该表达式被保护起来了。这就意味，在该表达式中所有触发的异常都会被捕获到。在`try...of`和`catch`之间的 `patterns`和`expressions`的行为更`case ... of`中的表达式一样。最后，在catch部分中， 你可以使用error，throw和exit代替`TypeOfError`表达式。我们会在这一章中详细介绍每个部分。`throw`为默认值。那让我们实践一下吧。
+
 First of all, let's start a module named exceptions. We're going for simple here:
+
+首先， 编写一个名为exceptions的模块，列举如下：
 
 ``` erlang
 -module(exceptions).
 -compile(export_all).
  
 throws(F) ->
-try F() of
-_ -> ok
-catch
-Throw -> {throw, caught, Throw}
-end.
+    try F() of
+        _ -> ok
+    catch
+        Throw -> {throw, caught, Throw}
+    end.
 ```
 
 We can compile it and try it with different kinds of exceptions:
+
+我们编译该模块，尝试不同类型的异常：
 
 ``` erlang
 1> c(exceptions).
@@ -358,6 +368,8 @@ We can compile it and try it with different kinds of exceptions:
 ```
 
 As you can see, this try ... catch is only receiving throws. As stated earlier, this is because when no type is mentioned, a throw is assumed. Then we have functions with catch clauses of each type:
+
+正如你所见，`try...catch`表达式仅接收throw。如前所述， 如果catch子句中没有指定错误类型，那么throw被设置为默认值。然后，我们写一个函数，在catch子句中分别指定每种错误类型。
 
 ``` erlang
 errors(F) ->
@@ -377,6 +389,8 @@ exits(F) ->
 
 And to try them:
 
+然后测试这些代码：
+
 ``` erlang
 4> c(exceptions).
 {ok,exceptions}
@@ -387,6 +401,8 @@ And to try them:
 ```
 
 The next example on the menu shows how to combine all the types of exceptions in a single try ... catch. We'll first declare a function to generate all the exceptions we need:
+
+下一个例子是怎么把所有类型的异常结合在一起，放在单个`try...catch`语句。 我们首先声明一个函数，来生成我们需要的所有类型的异常：
 
 ``` erlang
 sword(1) -> throw(slice);
@@ -408,11 +424,15 @@ black_knight(Attack) when is_function(Attack, 0) ->
 
 Here is_function/2 is a BIF which makes sure the variable Attack is a function of arity 0. Then we add this one for good measure:
 
+`is_function/2`是一个内建函数，可以用来确认Attack变量是一个接收0个参数的函数。添加一个函数用于测试：
+
 ``` erlang
 talk() -> "blah blah".
 ```
 
 And now for something completely different:
+
+现在来一些复杂的例子：
 
 ``` erlang
 7> c(exceptions).
