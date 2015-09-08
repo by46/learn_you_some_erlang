@@ -2,7 +2,7 @@ Syntax in functions
 ===
 Pattern Matching
 ---
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch2/snail.png?raw=true)
+![](/images/ch2/snail.png)
 
 Now that we have the ability to store and compile our code, we can begin to write more advanced functions. Those that we have written so far were extremely simple and a bit underwhelming. We'll get to more interesting stuff. The first function we'll write will need to greet someone differently according to gender. In most languages you would need to write something similar to this:
 
@@ -122,7 +122,7 @@ And it's that simple. Before explaining how the function works, we'll go over th
 
 这个非常简单， 在解释函数怎么样工作以前， 我们会再一次复习绑定和未绑定变量的概念。
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch2/musical-chair.png?raw=true)
+![](/images/ch2/musical-chair.png)
 
 If this game of musical chairs was Erlang, you'd want to sit on the empty chair. Sitting on one already occupied wouldn't end well! Joking aside, unbound variables are variables without any values attached to them (like our empty chair). Binding a variable is simply attaching a value to an unbound variable. In the case of Erlang, when you want to assign a value to a variable that is already bound, an error occurs unless the new value is the same as the old one. Let's imagine our snake on the right: if another snake comes around, it won't really change much to the game. You'll just have more angry snakes. If a different animal comes to sit on the chair (a honey badger, for example), things will go bad. Same values for a bound variable are fine, different ones are a bad idea. You can go back to the subchapter about Invariable Variables if this concept is not clear to you.
 
@@ -163,7 +163,7 @@ There is a problem though! This function could take anything for values, even te
 Guards, Guards!
 ---
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch2/driving-age.png?raw=true)
+![](/images/ch2/driving-age.png)
 
 Guards are additional clauses that can go in a function's head to make pattern matching more expressive. As mentioned above, pattern matching is somewhat limited as it cannot express things like a range of value or certain types of data. A concept we couldn't represent is counting: is this 12 years old basketball player too short to play with the pros? Is this distance too long to walk on your hands? Are you too old or too young to drive a car? You couldn't answer these with simple pattern matching. I mean, you could represent the driving question such as:
 
@@ -210,7 +210,7 @@ wrong_age(_) ->
     false.
 ```
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch2/guard.png?raw=true)
+![](/images/ch2/guard.png)
 
 And we get correct results from that too. Test it if you want (you should always test stuff!). In guard expressions, the semi-colon (;) acts like the orelse operator: if the first guard fails, it then tries the second, and then the next one, until either one guard succeeds or they all fail.
 
@@ -276,7 +276,7 @@ Uh oh! the compiler is warning us that no clause from the if on line 12 (1 =:= 2
 
 编译器警告我们， if语句没有一个子句被匹配， 因为唯一的guard表示返回false。 记住， 在Erlang中， 所有东西都有返回值， if表达式也不例外。 例如， 当Erlang没有找到一条guard成功的路径，那么它就会崩溃：因为它不能返回一些值。正因为如此， 我们需要添加一个捕获全部的分支， 在任何情况下都可以执行。 在大多数语言中， 这被成为"else"。 在erlang中， 我用'true'（这也解释了为什么虚拟机抛出一个“no true branch found”）。
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch2/labyrinth.png?raw=true)
+![](/images/ch2/labyrinth.png)
 
 ```
 oh_god(N) ->
@@ -427,7 +427,7 @@ This raises the question: when should we use if, case ... of or functions to do 
 Which to use?
 ---
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch2/coppertone.png?raw=true)
+![](/images/ch2/coppertone.png)
 
 Which to use is rather hard to answer. The difference between function calls and case ... of are very minimal: in fact, they are represented the same way at a lower level, and using one or the other effectively has the same cost in terms of performance. One difference between both is when more than one argument needs to be evaluated: function(A,B) -> ... end. can have guards and values to match against A and B, but a case expression would need to be formulated a bit like:
 

@@ -11,7 +11,7 @@ When it didn't work, an error was thrown in your face, but only once you ran the
 
 只有当你运行代码的时候，并且如果代码没有正常工作，你才能收到错误信息。这也说明Erlang是动态类型：所有错误都是在运行时捕获到的，当编译一个可能存在错误的模块时，编译器不会做出任何反应。
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch2/ham.png?raw=true)
+![](/images/ch2/ham.png)
 
 
 One classic friction point between proponents of static and dynamic typing has to do with the safety of the software being written. A frequently suggested idea is that good static type systems with compilers enforcing them with fervor will catch most errors waiting to happen before you can even execute the code. As such, statically typed languages are to be seen as safer than their dynamic counterparts. While this might be true when comparing with many dynamic languages, Erlang begs to differ and certainly has a track record to prove it. The best example is the often reported nine nines (99.9999999%) of availability offered on the Ericsson AXD 301 ATM switches, consisting of over 1 million lines of Erlang code. Please note that this is not an indication that none of the components in an Erlang-based system failed, but that a general switch system was available 99.9999999% of the time, planned outages included. This is partially because Erlang is built on the notion that a failure in one of the components should not affect the whole system. Errors coming from the programmer, hardware failures or [some] network failures are accounted for: the language includes features which will allow you to distribute a program over to different nodes, handle unexpected errors, and never stop running.
@@ -86,7 +86,7 @@ Erlang basic data types are easy to spot, visually: tuples have the curly bracke
 
 Erlang的基础数据类型很容易被发现， 从表面上看：元组使用花括号， 列表使用中括号， 字符串使用双引号包围。可以通过模式匹配来强制使用一种确定的数据类型：head/1函数只能接受一个列表作为参数，因为其他数据类型会导致([H|_])模式匹配失败。
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch2/my-name-is.png?raw=true)
+![](/images/ch2/my-name-is.png)
 
 However, we've had a problem with numeric values because we couldn't specify ranges. Consequently, we used guards in functions about temperature, the age to drive, etc. We're hitting another roadblock now. How could we write a guard that ensures that patterns match against data of a single specific type, like numbers, atoms or bitstrings?
 
@@ -144,7 +144,7 @@ The release R13B04 saw the addition of the BIF binary_to_term/2, which lets you 
 For Type Junkies
 ---
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch2/type-dance.png?raw=true)
+![](/images/ch2/type-dance.png)
 
 
 This section is meant to be read by programmers who can not live without a static type system for one reason or another. It will include a little bit more advanced theory and everything may not be understood by everyone. I will briefly describe tools used to do static type analysis in Erlang, defining custom types and getting more safety that way. These tools will be described for anyone to understand much later in the book, given that it is not necessary to use any of them to write reliable Erlang programs. Because we'll show them later, I'll give very little details about installing, running them, etc. Again, this section is for those who really can't live without advanced type systems.
@@ -206,7 +206,7 @@ Implementation of fifo (queues): made out of two stacks (last-in first-out).
 Which is pretty much right. Improper lists should be avoided because lists:reverse/1 doesn't support them, but someone bypassing the module's interface would be able to get through it and submit one. In this case, the functions push/2 and pop/2 might still succeed for a few calls before they cause an exception. This either tells us to add guards or refine our type definitions manually. Suppose we add the signature -spec push({fifo,list(),list()},_) -> {fifo,nonempty_list(),list()}. and a function that passes an improper list to push/2 to the module: when scanning it in Dialyzer (which checks and matches the types), the error message "The call fifo:push({fifo,[1|2],[]},3) breaks the contract '<Type definition here>' is output.
 
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch2/fifo.png?raw=true)
+![](/images/ch2/fifo.png)
 
 Dialyzer will complain only when code will break other code, and if it does, it'll usually be right (it will complain about more stuff too, like clauses that will never match or general discrepancies). Polymorphic data types are also possible to write and analyze with Dialyzer: the hd() function could be annotated with -spec([A]) -> A. and be analyzed correctly, although Erlang programmers seem to rarely use this type syntax.
 

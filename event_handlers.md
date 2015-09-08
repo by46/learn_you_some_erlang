@@ -20,7 +20,7 @@ This third approach simply takes a process which accepts functions and lets them
 
 这第三种选择是简单用一个进程接受所有的输入事件。 这个进程通常被称为了事件管理器和它看起来可能会像这样：
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch16/event-manager.png?raw=true)
+![](/images/ch16/event-manager.png)
 
 Doing things that way has a few advantages:
 我这样做有以下几个优点：
@@ -60,17 +60,17 @@ This separation, however, means that the standard spawn -> init -> loop -> termi
 
 Spawn-> init->loop->terminate的模式只会应用到事件处理器。现在如果你回想之前我们提到， 事件处理只是一些在manager中运行的函数。这就意味着当前模型:
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch16/common-pattern.png?raw=true)
+![](/images/ch16/common-pattern.png)
 
 Switches to something more like this for the programmer:
  可能会变成这样：
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch16/event-handler-pattern.png?raw=true)
+![](/images/ch16/event-handler-pattern.png)
 
 Each event handler can hold its own state, carried around by the manager for them. Each event handler can then take the form:
 每个event handler 都可以持有自己的状态， 可以被manager随身携带。每个event handler看起来像这样：
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch16/event-handler-pattern-local.png?raw=true)
+![](/images/ch16/event-handler-pattern-local.png)
 
 This is nothing too complex so let's get it on with the event handlers' callbacks themselves.
 那我们开始解释一下关于event handler的callback的含义。
@@ -91,7 +91,7 @@ remove_handler
 {swap_handler, Args1, NewState, NewHandler, Args2}
 A sleeping polar bear with a birthday hat
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch16/hibernate.png?raw=true)
+![](/images/ch16/hibernate.png)
 
 The tuple {ok, NewState} works in a way similar to what we've seen with gen_server:handle_cast/2; it simply updates its own state and doesn't reply to anyone. In the case of {ok, NewState, hibernate} it is to be noted that the whole event manager is going to be put in hibernation. Remember that event handlers run in the same process as their manager. Then remove_handler drops the handler from the manager. This can be useful whenever your event handler knows its done and it has nothing else to do. Finally, there's {swap_handler, Args1, NewState, NewHandler, Args2}. This one is not used too frequently, but what it does is remove the current event handler and replace it with a new one. This is done by first calling CurrentHandler:terminate(Args1, NewState) and removing the current handler, then adding a new one by calling NewHandler:init(Args2, ResultFromTerminate). This can be useful in the cases where you know some specific event happened and you're better of giving control to a new handler. This is likely the kind of thing where you'll simply know when you need it. Again, it's not that frequently used.
 
@@ -130,7 +130,7 @@ If you've never seen or played curling before (which is a shame!), the rules are
 作为回顾，我们开始使用gen_event来实现例子。这部分，我选择实现一些event handler来跟踪一项世界级的娱乐比赛的比赛进程：冰壶。
 如果你不了解冰壶运动， 规则相对简单：
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch16/curling-ice.png?raw=true)
+![](/images/ch16/curling-ice.png)
 
 You have two teams and they try to send a curling stone sliding on the ice, trying to get to the middle of the red circle. They do this with 16 stones and the team with the stone closest to the center wins a point at the end of the round (called an end). If the team has the two closest stones, it earns two points, and so on. There are 10 ends and the team with the most points at the end of the 10 ends wins the game.
 
@@ -279,7 +279,7 @@ A few things are going on here. The first of them is that we're starting the gen
 
 有几件事需要交代一下 ，第一我们启动了一个gen_event 进程， 我们通过gen_event:add_handler/2动态的向该进程附加了一个事件处理器。 你可以附加同一个时间处理器多次。当操作特定事件处理器时，这将会引起一些问题。当存在一个事件处理器的多个时，你需要调用，添加或者删除该特定事件处理， 你需要找到一个唯一标识它的途径。我最喜欢的方式是通过make_ref()产生一个唯一值。使用gen_event:add_handler(Pid,{Module,Ref}, Args)来添加事件处理器。通过{Module, Ref}可以和特定的处理器通信。 所以问题得以解决。
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch16/curling-stone.png?raw=true)
+![](/images/ch16/curling-stone.png)
 
 Anyway, you can then see that we send messages to the event handler, which successfully calls the hardware module. We then remove the handler. Here, turn_off is an argument to the terminate/2 function, which our implementation currently doesn't care about. The handler is gone, but we can still send events to the event manager. Hooray.
 
@@ -335,7 +335,7 @@ This doesn't look like much of an advantage, but it's really about making it nic
 Alert the Press!
 ---
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch16/alert.png?raw=true)
+![](/images/ch16/alert.png)
 
 We've got the basic scoreboard done, now we want international reporters to be able to get live data from our official in charge of updating our system. Because this is an example program, we won't go through the steps of setting up a socket and writing a protocol for the updates, but we'll put the system in place to do it by putting an intermediary process in charge of it.
 
@@ -419,7 +419,7 @@ This introduces a problem though. What if one of the curling feed subscribers cr
 
 Don't Drink Too Much Kool-Aid
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch16/leash.png?raw=true)
+![](/images/ch16/leash.png)
 
 It might have happened at some time in your childhood that you went to your aunt or grandmother's place for a party or something. If you were mischievous in any way, you would have several adults looking over you, on top of your parents. Now if you ever did something wrong, you would get scolded by your mom, dad, aunt, grandmother and then everyone would keep telling you after that even though you already clearly knew you had done something wrong. Well gen_event:add_sup_handler/3 is a bit like that; no, seriously.
 

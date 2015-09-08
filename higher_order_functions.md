@@ -2,7 +2,7 @@ Higher Order Functions
 ===
 Let's get functional
 ---
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch5/lambda.png?raw=true)
+![](/images/ch5/lambda.png)
 
 An important part of all functional programming languages is the ability to take a function you defined and then pass it as a parameter to another function. This in turn binds that function parameter to a variable which can be used like any other variable within the function. A function that can accept other functions transported around that way is named a higher order function. Higher order functions are a powerful means of abstraction and one of the best tools to master in Erlang.
 
@@ -149,7 +149,7 @@ Alarm tripped in bathroom! Call Batman!
 ok
 ```
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch5/batman.png?raw=true)
+![](/images/ch5/batman.png)
 
 Hold the phone Batman! What's going on here? Well, first of all, we declare an anonymous function assigned to PrepareAlarm. This function has not run yet: it only gets executed when PrepareAlarm("bathroom"). is called. Batman with a manly mustache At that point, the call to io:format/2 is evaluated and the "Alarm set" text is output. The second expression (another anonymous function) is returned to the caller and then assigned to AlarmReady. Note that in this function, the variable Room's value is taken from the 'parent' function (PrepareAlarm). This is related to a concept called closures.
 
@@ -297,7 +297,7 @@ We'll set the anonymous function theory aside a bit and we'll explore more commo
 
 Maps, filters, folds and more
 ---
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch5/erland.png?raw=true)
+![](/images/ch5/erland.png)
 
 At the beginning of this chapter, I briefly showed how to abstract away two similar functions to get a map/2 function. I also affirmed that such a function could be used for any list where we want to act on each element. The function was the following:
 
@@ -398,7 +398,7 @@ To find how the fold should behave, we've got to find all the common points of t
 
 为了找出`fold`是如何运作的，我们不得不找出这些动作的所有共同点，然后确定他们不同之处。正如上文提到的， 我们总是从列表缩减为单值。因此，我们fold过程只需要考虑进行迭代时如何持有一个单值，而不是构建一个列表。我们需要忽略所有的Guard， 因为他们不总是需要：他们应该包含在用户定义的函数中。就这样一点而言，我们的fold函数很像是求和运算。
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch5/foldr.png?raw=true)
+![](/images/ch5/foldr.png)
 
 A subtle element of all three functions that wasn't mentioned yet is that every function needs to have an initial value to start counting with. In the case of sum/2, we use 0 as we're doing addition and given X = X + 0, the value is neutral and we can't mess up the calculation by starting there. If we were doing multiplication we'd use 1 given X = X * 1. The functions min/1 and max/1 can't have a default starting value: if the list was only negative numbers and we started at 0, the answer would be wrong. As such, we need to use the first element of the list as a starting point. Sadly, we can't always decide this way, so we'll leave that decision to the programmer. By taking all these elements, we can build the following abstraction:
 

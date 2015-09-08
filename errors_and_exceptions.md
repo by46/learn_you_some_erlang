@@ -84,7 +84,7 @@ Logical errors are the hardest kind of errors to find and debug. They're most li
 
 逻辑错误是最难寻找和调试的错误类型。他们大部分来自程序员：来自一大堆没有考虑所有情况的条件语句， 例如`if`和`case`子句， 也可能来自混合了乘除法的语句。虽然他们不会导致你的程序崩溃，但是以给出了未预见的错误数据，或者使程序以某种非期望方式运行而结束。
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch6/exam.png?raw=true)
+![](/images/ch6/exam.png)
 
 You're most likely on your own when it comes to this, but Erlang has many facilities to help you there, including test frameworks, TypEr and Dialyzer (as described in the types chapter), a debugger and tracing module, etc. Testing your code is likely your best defense. Sadly, there are enough of these kinds of errors in every programmer's career to write a few dozen books about so I'll avoid spending too much time here. It's easier to focus on those that make your programs crash, because it happens right there and won't bubble up 50 levels from now. Note that this is pretty much the origin of the 'let it crash' ideal I mentioned a few times already.
 
@@ -210,7 +210,7 @@ There are many reasons why a system_limit error can be thrown: too many processe
 Raising Exceptions
 ---
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch6/stop.png?raw=true)
+![](/images/ch6/stop.png)
 
 In trying to monitor the execution of code and protect against logical errors, it's often a good idea to provoke run-time crashes so problems will be spotted early.
 
@@ -260,19 +260,19 @@ In the introduction, I've compared processes as people communicating by mail. Th
 
 在第一章节，我曾把进程比作公民通过信件通信。没有必要增加更多的类比，所以我们来看图示。
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch6/a-b-msg.png?raw=true)
+![](/images/ch6/a-b-msg.png)
 
 Processes here can send each other messages. A process can also listen for messages, wait for them. You can also choose what messages to listen to, discard some, ignore others, give up listening after a certain time etc.
 
 进程间可以相互发送消息。进程可以接收、等待消息。你也可以选择接收那些消息，丢弃那些消息，忽略那些消息，放弃接收消息等等。
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch6/a-b-c-hello.png?raw=true)
+![](/images/ch6/a-b-c-hello.png)
 
 These basic concepts let the implementors of Erlang use a special kind of message to communicate exceptions between processes. They act a bit like a process' last breath; they're sent right before a process dies and the code it contains stops executing. Other processes that were listening for that specific kind of message can then know about the event and do whatever they please with it. This includes logging, restarting the process that died, etc.
 
 由于这些基础概念， 所以使得Erlang的实现者使用某种特殊消息在进程间传达异常。他们的角色有点像进程的心跳；如果进程没有终止，这些特殊消息就会被正确发送。监听了这些特殊消息的其他进程可以收到这些事件，并进行合理的处理。包括记录日志，重启刚死掉的进程等等。
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch6/a-b-dead.png?raw=true)
+![](/images/ch6/a-b-dead.png)
 
 With this concept explained, the difference in using erlang:error/1 and exit/1 is easier to understand. While both can be used in an extremely similar manner, the real difference is in the intent. You can then decide whether what you've got is 'simply' an error or a condition worthy of killing the current process. This point is made stronger by the fact that erlang:error/1 returns a stack trace and exit/1 doesn't. If you were to have a pretty large stack trace or lots of arguments to the current function, copying the exit message to every listening process would mean copying the data. In some cases, this could become unpractical.
 
@@ -458,7 +458,7 @@ The expression on line 9 demonstrates normal behavior for the black knight, when
 One thing shown here on expressions 13 and 14 is a catch-all clause for exceptions. The _:_ pattern is what you need to use to make sure to catch any exception of any type. In practice, you should be careful when using the catch-all patterns: try to protect your code from what you can handle, but not any more than that. Erlang has other facilities in place to take care of the rest.
 
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch6/black-knight.png?raw=true)
+![](/images/ch6/black-knight.png)
 
 There's also an additional clause that can be added after a try ... catch that will always be executed. This is equivalent to the 'finally' block in many other languages:
 
@@ -651,7 +651,7 @@ has_value(Val, {node, {_, _, Left, Right}}) ->
 
 The problem with this implementation is that every node of the tree we branch at has to test for the result of the previous branch:
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch6/tree-case.png?raw=true)
+![](/images/ch6/tree-case.png)
 
 This is a bit annoying. With the help of throws, we can make something that will require less comparisons:
 
@@ -674,7 +674,7 @@ has_value1(Val, Right).
 
 The execution of the code above is similar to the previous version, except that we never need to check for the return value: we don't care about it at all. In this version, only a throw means the value was found. When this happens, the tree evaluation stops and it falls back to the catch on top. Otherwise, the execution keeps going until the last false is returned and that's what the user sees:
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch6/tree-throw.png?raw=true)
+![](/images/ch6/tree-throw.png)
 
 Of course, the implementation above is longer than the previous one. However, it is possible to realize gains in speed and in clarity by using non-local returns with a throw, depending on the operations you're doing. The current example is a simple comparison and there's not much to see, but the practice still makes sense with more complex data structures and operations.
 

@@ -3,7 +3,7 @@ Recursion
 Hello recursion!
 ---
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch4/recurse.png?raw=true)
+![](/images/ch4/recurse.png)
 
 Some readers accustomed with imperative and object-oriented programming languages might be wondering why loops weren't shown already. The answer to this is "what is a loop?" Truth is, functional programming languages usually do not offer looping constructs like for and while. Instead, functional programmers rely on a silly concept named recursion.
 
@@ -13,7 +13,7 @@ I suppose you remember how invariable variables were explained in the intro chap
 
 我假设你还记得在前面章节不变的变量。如果你不记得了， 那你需要关注他们。递归可以借助数学概念和函数来解释。一些基本的数学函数例如阶乘就是很好例子说明函数可以递归地表达。n的阶乘就是1 x 2 x 3 x 4 x...x n或者n x (n -1) x (n - 2) x …x 1的乘积。具一些例子， 3的阶乘 3! = 3 x 2 x 1 = 6 。 4的阶乘4! = 4 x 3 x 2 x 1 = 24 。阶乘可用下列数据公式表达：
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch4/fac.png?raw=true)
+![](/images/ch4/fac.png)
 
 What this tells us is that if the value of n we have is 0, we return the result 1. For any value above 0, we return n multiplied by the factorial of n-1, which unfolds until it reaches 1:
 
@@ -108,7 +108,7 @@ Which is the right answer. Congratulations on your first useful recursive functi
 Length of a Tail Recursion
 ---
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch4/tail-recursion.png?raw=true)
+![](/images/ch4/tail-recursion.png)
 
 You might have noticed that for a list of 4 terms, we expanded our function call to a single chain of 5 additions. While this does the job fine for short lists, it can become problematic if your list has a few million values in it. You don't want to keep millions of numbers in memory for such a simple calculation. It's wasteful and there's a better way. Enter tail recursion.
 
@@ -170,7 +170,7 @@ And now your length function is tail recursive.
 More recursive functions
 ---
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch4/rock-paper-scissors.png?raw=true)
+![](/images/ch4/rock-paper-scissors.png)
 
 We'll write a few more recursive functions, just to get in the habit a bit more. After all, recursion being the only looping construct that exists in Erlang (except list comprehensions), it's one of the most important concepts to understand. It's also useful in every other functional programming language you'll try afterwards, so take notes!
 
@@ -348,7 +348,7 @@ LCO在函数中最后一个被求值的表达式是调用其他函数时发生�
 Quick, Sort!
 ---
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch4/quicksort.png?raw=true)
+![](/images/ch4/quicksort.png)
 
 I can (and will) now assume recursion and tail recursion make sense to you, but just to make sure, I'm going to push for a more complex example, quicksort. Yes, the traditional "hey look I can write short functional code" canonical example. A naive implementation of quicksort works by taking the first element of a list, the pivot, and then putting all the elements smaller or equal to the pivot in a new list, and all those larger in another list. We then take each of these lists and do the same thing on them until each list gets smaller and smaller. This goes on until you have nothing but an empty list to sort, which will be our base case. This implementation is said to be naive because smarter versions of quicksort will try to pick optimal pivots to be faster. We don't really care about that for our example though.
 
@@ -398,7 +398,7 @@ More than lists
 ---
 By reading this chapter, you might be starting to think recursion in Erlang is mainly a thing concerning lists. While lists are a good example of a data structure that can be defined recursively, there's certainly more than that. For the sake of diversity, we'll see how to build binary trees, and then read data from them.
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch4/tree.png?raw=true)
+![](/images/ch4/tree.png)
 
 First of all, it's important to define what a tree is. In our case, it's nodes all the way down. Nodes are tuples that contain a key, a value associated to the key, and then two other nodes. Of these two nodes, we need one that has a smaller and one that has a larger key than the node holding them. So here's recursion! A tree is a node containing nodes, each of which contains nodes, which in turn also contain nodes. This can't keep going forever (we don't have infinite data to store), so we'll say that our nodes can also contain empty nodes.
 
@@ -508,4 +508,4 @@ And now ladies and gentlemen, a discussion: the author vs. himself
 — Well isn't that great? All that learning because there is no 'while' or 'for' in Erlang. Thank you very much I'm going back to programming my toaster in C!
 — Not so fast there! Functional programming languages have other assets! If we've found some base case patterns to make our life easier when writing recursive functions, a bunch of smart people have found many more to the point where you will need to write very few recursive functions yourself. If you stay around, I'll show you how such abstractions can be built. But for this we will need more power. Let me tell you about higher order functions...
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch4/fib.png?raw=true)
+![](/images/ch4/fib.png)

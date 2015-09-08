@@ -3,7 +3,7 @@ Modules
 What are modules
 ---
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch1/modules.png?raw=true)
+![](/images/ch1/modules.png)
 
 Working with the interactive shell is often considered a vital part of using dynamic programming languages. It is useful to test all kinds of code and programs. Most of the basic data types of Erlang were used without even needing to open a text editor or saving files. You could drop your keyboard, go play ball outside and call it a day, but you would be a terrible Erlang programmer if you stopped right there. Code needs to be saved somewhere to be used!
 
@@ -39,7 +39,7 @@ Logically, you should put functions about similar things inside a single module.
 Module Declaration
 ---
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch1/declaration.png?raw=true)
+![](/images/ch1/declaration.png)
 
 When writing a module, you can declare two kinds of things: functions and attributes. Attributes are metadata describing the module itself such as its name, the functions that should be visible to the outside world, the author of the code, and so on. This kind of metadata is useful because it gives hints to the compiler on how it should do its job, and also because it lets people retrieve useful information from compiled code without having to consult the source.
 
@@ -122,7 +122,7 @@ greet_and_add_two(X) ->
     add(X,2).
 ```
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch1/imports.png?raw=true)
+![](/images/ch1/imports.png)
 
 Do not forget to add greet_and_add_two/1 to the exported function list. The calls to hello/0 and add/2 don't need to have the module name prepended to them because they were declared in the module itself.
 
@@ -312,4 +312,4 @@ Well, that's enough for the pedantic moralizations. How about we explore Erlang 
 好吧，教条式说教已经足够多了， 让我们更进一步的探究Erlang，如何？
 
 
-![](https://github.com/by46/learn_you_some_erlang/blob/master/images/ch1/circular-dependencies.png?raw=true)
+![](/images/ch1/circular-dependencies.png)
