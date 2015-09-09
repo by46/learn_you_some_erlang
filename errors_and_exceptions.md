@@ -455,26 +455,36 @@ And now for something completely different:
 
 The expression on line 9 demonstrates normal behavior for the black knight, when function execution happens normally. Each line that follows that one demonstrates pattern matching on exceptions according to their class (throw, error, exit) and the reason associated with them (slice, cut_arm, cut_leg).
 
+第九行的表达式演示了：当`exceptions:talk/0`正确执行时，黑骑士就表现为正常行为。剩下的所有示例代码演示了：根据类型(throw, error, exit)及相关的异常原因(slice, cut_arm, cut_leg)来匹配异常。
+
 One thing shown here on expressions 13 and 14 is a catch-all clause for exceptions. The _:_ pattern is what you need to use to make sure to catch any exception of any type. In practice, you should be careful when using the catch-all patterns: try to protect your code from what you can handle, but not any more than that. Erlang has other facilities in place to take care of the rest.
+
+表达式13和表达式14展示了匹配所有异常的子句的用法。你需要使用`_:_`模式来匹配任何类型的任何异常。 在实践中，当使用匹配所有情况的模式时，你应该非常小心：为了保护你的代码，所以你需要你能处理的异常，而不是所有异常。Erlang有其他工具来处理剩下的情况。
 
 
 ![](/images/ch6/black-knight.png)
 
 There's also an additional clause that can be added after a try ... catch that will always be executed. This is equivalent to the 'finally' block in many other languages:
 
+可以向`try...catch`添加一个额外的子句，它会被总是能被执行。 这等同于其他语言中的`finally`语言块：
+
 ``` erlang
 try Expr of
     Pattern -> Expr1
 catch
     Type:Exception -> Expr2
-        after % this always gets executed
+    after % this always gets executed
         Expr3
-    end
+end
 ```
 
 No matter if there are errors or not, the expressions inside the after part are guaranteed to run. However, you can not get any return value out of the after construct. Therefore, after is mostly used to run code with side effects. The canonical use of this is when you want to make sure a file you were reading gets closed whether exceptions are raised or not.
 
+不管有没有异常发生， 在after部分中的代码被确保一定会执行。然而，你不会从after子句中得到任何返回值（译者注：因为返回值由`try`和`catch`及`catch`和`after`之间的子句决定）。因此，after主要用于运行具有副作用的代码。一种权威的用法是确保有错误发生时，你可以关闭已经打开的文件句柄。
+
 We now know how to handle the 3 classes of exceptions in Erlang with catch blocks. However, I've hidden information from you: it's actually possible to have more than one expression between the try and the of!
+
+现在，在Erlang中，我们已经可以通过catch代码块来处理三种异常。然而，我也隐藏了一些信息：在`try` 和 `of`之间可以有多个表达式！
 
 ``` erlang
 whoa() ->
@@ -493,7 +503,11 @@ whoa() ->
 
 By calling exceptions:whoa(), we'll get the obvious {caught, throw, up}, because of throw(up). So yeah, it's possible to have more than one expression between try and of...
 
+通过调用`exceptions:whoa/0`函数，因为`throw(up)`，我们会收到`{caught, throw, up}`元组。所以在`try`和`of`之间可以有多条语句。
+
 What I just highlighted in exceptions:whoa/0 and that you might have not noticed is that when we use many expressions in that manner, we might not always care about what the return value is. The of part thus becomes a bit useless. Well good news, you can just give it up:
+
+当我们对多个表达式使用`try...of...catch`语句时，很有可能你不用关心返回值是什么，所以`of`部分就变得很多余。好消息是，你可以去掉`of`部分：
 
 ``` erlang
 im_impressed() ->
@@ -510,11 +524,19 @@ im_impressed() ->
 
 And now it's a bit leaner!
 
+现在，看上去简洁多了！
+
 Note: It is important to know that the protected part of an exception can't be tail recursive. The VM must always keep a reference there in case there's an exception popping up.
+
+注意：有一点非常重要，在`try`和`of`之间的保护代码不能进行尾递归。当有异常发生时，VM必须总是保持引用。
 
 Because the try ... catch construct without the of part has nothing but a protected part, calling a recursive function from there might be dangerous for programs supposed to run for a long time (which is Erlang's niche). After enough iterations, you'll go out of memory or your program will get slower without really knowing why. By putting your recursive calls between the of and catch, you are not in a protected part and you will benefit from Last Call Optimisation.
 
+因为`try..catch`结构除了保护部分没有其他代码， 如果就从保护部分递归调用函数，并且该函数会运行很长时间，那么这会很危险。递归调用足够多次后，你可能会耗尽内存，或者你的程序会运行得越来越慢，而你却不知道什么原因。把你递归调用的部分放在`of` 和 `catch`之间，而不是在保护部分。你会因为LCO(最后调用优化)受益的。
+
 Some people use try ... of ... catch rather than try ... catch by default to avoid unexpected errors of that kind, except for obviously non-recursive code with results that won't be used by anything. You're most likely able to make your own decision on what to do!
+
+默认情况下， 有些人使用`try...of..catch`代替`try...catch`来避免意外的错误类型，除了明显地非递归调用代码，并且它的结果不会在被使用。 你可以自己决定使用哪种。
 
 
 Wait, there's more!
