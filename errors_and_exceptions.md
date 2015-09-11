@@ -544,6 +544,8 @@ Wait, there's more!
 
 As if it wasn't enough to be on par with most languages already, Erlang's got yet another error handling structure. That structure is defined as the keyword catch and basically captures all types of exceptions on top of the good results. It's a bit of a weird one because it displays a different representation of exceptions:
 
+似乎erlang的错误处理机制不能和其他编程语言相媲美，但是Erlang还有另外错误处理结构。该结构被定义为关键字捕获，基本上会捕获所有类型的异常。这看上去或许有些奇怪， 因为它会显示异常的另外表现形式：
+
 ``` erlang
 1> catch throw(whoa).
 whoa
@@ -562,7 +564,11 @@ whoa
 
 What we can see from this is that throws remain the same, but that exits and errors are both represented as {'EXIT', Reason}. That's due to errors being bolted to the language after exits (they kept a similar representation for backwards compatibility).
 
+我们可以看到，throw的消息形式还是保持一样，但是exits和errors都被表示为`{’EXIT', Reason}`的形式。那是由于errors在exits之后产生，并且errors被固定在语言中（为了保持向后兼容， 他们尽可能的保持一致）。
+
 The way to read this stack trace is as follows:
+
+下面是阅读堆栈信息的方法：
 
 ``` erlang
 5> catch doesnt:exist(a,4).             
@@ -574,14 +580,24 @@ The way to read this stack trace is as follows:
     {shell,eval_loop,3}]}}
 ```
 
-The type of error is undef, which means the function you called is not defined (see the list at the beginning of this chapter)
-The list right after the type of error is a stack trace
-The tuple on top of the stack trace represents the last function to be called ({Module, Function, Arguments}). That's your undefined function.
-The tuples after that are the functions called before the error. This time they're of the form {Module, Function, Arity}.
-That's all there is to it, really.
+* The type of error is undef, which means the function you called is not defined (see the list at the beginning of this chapter)
+* undef错误类型意味着，你调用的函数没有定义(参考该章节开始部分)
+* The list right after the type of error is a stack trace
+* 紧接着错误类型之后列出是调用堆栈信息
+* The tuple on top of the stack trace represents the last function to be called ({Module, Function, Arguments}). That's your undefined function.
+* 堆栈中最上层的元组是最后被调用的函数({Module, Function, Arguments})，那就是你未定义的函数。
+* The tuples after that are the functions called before the error. This time they're of the form {Module, Function, Arity}.
+* 接下来是调用栈中的函数信息，他们的形式如{Module, Function, Arity}
+* That's all there is to it, really.
+* 这就是全部了
+
 You can also manually get a stack trace by calling erlang:get_stacktrace/0 in the process that crashed.
 
+你可以通过调用erlang:get_stacktrace() 手动获取堆栈信息。
+
 You'll often see catch written in the following manner (we're still in exceptions.erl):
+
+你也许会经常看到以下面方式编写的代码：
 
 ``` erlang
 catcher(X,Y) ->
@@ -606,6 +622,8 @@ And as expected:
 
 This sounds compact and easy to catch exceptions, but there are a few problems with catch. The first of it is operator precedence:
 
+看上去捕获异常很简单容易，但是这样同样有一些问题。首先是操作符优先级问题：
+
 ``` erlang
 10> X = catch 4+2.
 * 1: syntax error before: 'catch'
@@ -614,6 +632,8 @@ This sounds compact and easy to catch exceptions, but there are a few problems w
 ```
 
 That's not exactly intuitive given that most expressions do not need to be wrapped in parentheses this way. Another problem with catch is that you can't see the difference between what looks like the underlying representation of an exception and a real exception:
+
+直觉上，大部分表达式都不需要用括号括起来。catch另外一个问题是你也许识别不了真实异常是什么：
 
 ``` erlang
 11> catch erlang:boat().
@@ -634,12 +654,16 @@ That's not exactly intuitive given that most expressions do not need to be wrapp
 
 And you can't know the difference between an error and an actual exit. You could also have used throw/1 to generate the above exception. In fact, a throw/1 in a catch might also be problematic in another scenario:
 
+所以你看到了一个错误和一个退出产生了相同的错误消息。你也可以用throw来产生这样一个异常。事实上， throw/1在其他场景同样有问题：
+
 ``` erlang
 one_or_two(1) -> return;
 one_or_two(2) -> throw(return).
 ```
 
 And now the killer problem:
+
+那致命的问题如下：
 
 ``` erlang
 13> c(exceptions).
@@ -652,11 +676,17 @@ return
 
 Because we're behind a catch, we can never know if the function threw an exception or if it returned an actual value! This might not really happen a whole lot in practice, but it's still a wart big enough to have warranted the addition of the try ... catch construct in the R10B release.
 
+因为catch挡在了我们前面， 我们不知道一个函数是抛出了异常，还是返回了一个实际值。在实际编码中，这也许不会发生，但是它确实是一个很严重的缺点，所以R10B才添加了额外的try...catch 结构。
+
 Try a try in a tree
 ---
 To put exceptions in practice, we'll do a little exercise requiring us to dig for our tree module. We're going to add a function that lets us do a lookup in the tree to find out whether a value is already present in there or not. Because the tree is ordered by its keys and in this case we do not care about the keys, we'll need to traverse the whole thing until we find the value.
 
+为了把异常付诸实践，我们将做一些练习，要求我们修改tree模块。我们将会添加一个用于检查某个值是否已经在tree中存在的函数。由于树是以key进行排序的，并在这个例子中，我们不关注key，所以我们需要遍历整个树，直到找到我们要找的值。
+
 The traversal of the tree will be roughly similar to what we did in tree:lookup/2, except this time we will always search down both the left branch and the right branch. To write the function, you'll just need to remember that a tree node is either {node, {Key, Value, NodeLeft, NodeRight}} or {node, 'nil'} when empty. With this in hand, we can write a basic implementation without exceptions:
+
+树的遍历和`tree:lookup/2`所完成的事非常类似，除了我们需要向下搜寻左右分支。为了编写该函数，我们需要牢记树的节点可能是`{node, {Key, Value, NodeLeft, NodeRight}}` 或者`{node, 'nil'}`的形式。我们可以先写一个没有异常处理的基础实现：
 
 ``` erlang
 %% looks for a given value 'Val' in the tree.
@@ -673,9 +703,13 @@ has_value(Val, {node, {_, _, Left, Right}}) ->
 
 The problem with this implementation is that every node of the tree we branch at has to test for the result of the previous branch:
 
+该实现的问题是：每个节点树的分支都需要测试前一个分支：
+
 ![](/images/ch6/tree-case.png)
 
 This is a bit annoying. With the help of throws, we can make something that will require less comparisons:
+
+这有点让人讨厌。借助throw的帮助， 我可以减少不必要的比较：
 
 ``` erlang
 has_value(Val, Tree) ->
@@ -696,8 +730,15 @@ has_value1(Val, Right).
 
 The execution of the code above is similar to the previous version, except that we never need to check for the return value: we don't care about it at all. In this version, only a throw means the value was found. When this happens, the tree evaluation stops and it falls back to the catch on top. Otherwise, the execution keeps going until the last false is returned and that's what the user sees:
 
+当前代码的执行方式和之前版本一致，除了我们不需要检查函数的返回值：我们不关心返回值。在当前版本中， 如果有throw就意味着value被找到。当throw发生时， 树的遍历就终止，代码退回到顶层的catch处。否者，将继续执行，直到最后一个false被返回。
+
 ![](/images/ch6/tree-throw.png)
 
 Of course, the implementation above is longer than the previous one. However, it is possible to realize gains in speed and in clarity by using non-local returns with a throw, depending on the operations you're doing. The current example is a simple comparison and there's not much to see, but the practice still makes sense with more complex data structures and operations.
 
+当然， 这个实现的代码比上一个版本要长。但是， 它确实执行更快，并且通过使用非本地返回使代码逻辑更清晰。当前例子只是一个简单的比较，但是在实践中，对于更加复杂的数据结构和操作就有意义了。
+
 That being said, we're probably ready to solve real problems in sequential Erlang.
+
+我们已经解决了顺序部分的异常处理相关的知识。
+
