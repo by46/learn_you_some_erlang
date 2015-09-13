@@ -1,18 +1,28 @@
 Functionally Solving Problems
 ====
 
-Sounds like we're ready to do something practical with all that Erlang juice we drank. Nothing new is going to be shown but how to apply bits of what we've seen before. The problems in this chapter were taken from Miran's Learn You a Haskell. I decided to take the same solutions so curious readers can compare solutions in Erlang and Haskell as they wish. If you do so, you might find the final results to be pretty similar for two languages with such different syntaxes. This is because once you know functional concepts, they're relatively easy to carry over to other functional languages.
+Sounds like we're ready to do something practical with all that Erlang juice we drank. Nothing new is going to be shown but how to apply bits of what we've seen before. The problems in this chapter were taken from Miran's [Learn You a Haskell](http://learnyouahaskell.com/functionally-solving-problems). I decided to take the same solutions so curious readers can compare solutions in Erlang and Haskell as they wish. If you do so, you might find the final results to be pretty similar for two languages with such different syntaxes. This is because once you know functional concepts, they're relatively easy to carry over to other functional languages.
+
+我们已经用Erlang完成不少练习。这里没有新的知识，但是我们会把之前学的知识来做一些实际运用。这章展示的问题是引用自Maran的[Learn You a Haskell](http://learnyouahaskell.com/functionally-solving-problems)。我之所有决定引用同样的问题，是因为一些好奇的读者可以比较Erlang和Haskell的两种解决方案。如果你做过比较之后，你就会发现两种拥有不同语法的编程语言给出的解决方案竟然如此相似。这是因为一旦你了解了函数式编程的概念之后，你就可以很容易用其他函数式编程语言实现。
 
 Reverse Polish Notation Calculator
 ---
 
 Most people have learned to write arithmetic expressions with the operators in-between the numbers ((2 + 2) / 5). This is how most calculators let you insert mathematical expressions and probably the notation you were taught to count with in school. This notation has the downside of needing you to know about operator precedence: multiplication and division are more important (have a higher precedence) than addition and subtraction.
 
+很多人都学过书写数学表达式，就是操作符在两个操作数之间的表达式(例如 (2+2)/5)。这是大部分计算器所接受的表达式，在学校里， 通常也是教导这种表达式。这种标记有一个缺点，你需要知道操作符的优先级：乘除法比加减法具有更高的优先级。
+
 Another notation exists, called prefix notation or Polish notation, where the operator comes before the operands. Under this notation, (2 + 2) / 5 would become (/ (+ 2 2) 5). If we decide to say + and / always take two arguments, then (/ (+ 2 2) 5) can simply be written as / + 2 2 5.
+
+还存在另外一种标记，被称为前缀式，或者波兰式，使用这种表达式时，操作符出现在操作数之前。例如，`(2+2)/5`将变成`(/ (+ 2 2) 5)`。如果我假设`+` 和 `-`操作符接受两个参数， 然后`( / (+ 2 2) 5)` 可以重写为 `/ + 2 2 5`。
 
 However, we will instead focus on Reverse Polish notation (or just RPN), which is the opposite of prefix notation: the operator follows the operands. The same example as above in RPN would be written 2 2 + 5 /. Other example expressions could be 9 * 5 + 7 or 10 * 2 * (3 + 4) / 2 which get translated to 9 5 * 7 + and 10 2 * 3 4 + * 2 /, respectively. This notation was used a whole lot in early models of calculators as it would take little memory to use. In fact some people still carry RPN calculators around. We'll write one of these.
 
+然而， 我们将关注逆波兰式(或者被为RPN)，一种与前缀表达式相反的表达式：操作符出现在操作数之后。用逆波兰式重写上面的例子：`2 2 + 5 /`。另外两个例子：`9 * 5 + 7` 和`10 * 2 * (3 + 4) / 2`可以用逆波兰式重写为`9 5 * 7 +`和`10 2 * 3 4 +  * 2 /`。这种标记在早期的计算器中广泛应用，因为它使用更少的内存。事实上，有很多人都还在使用逆波兰式计算器。那我们就用Erlang实现一个逆波兰式计算器。
+
 First of all, it might be good to understand how to read RPN expressions. One way to do it is to find the operators one by one and then regroup them with their operands by arity:
+
+首先，你必须很好的理解如何阅读逆波兰式表达式。一个方法就是依次找到操作符，然后根据操作数个数重组他们:
 
 ``` erlang
 10 4 3 + 2 * -
@@ -26,23 +36,35 @@ First of all, it might be good to understand how to read RPN expressions. One wa
 
 However, in the context of a computer or a calculator, a simpler way to do it is to make a stack of all the operands as we see them. Taking the mathematical expression 10 4 3 + 2 * -, the first operand we see is 10. We add that to the stack. Then there's 4, so we also push that on top of the stack. In third place, we have 3; let's push that one on the stack too. Our stack should now look like this:
 
+然而，在计算机或者计算器的场景下， 一个简单方法是构造一个堆栈保存我们找到的操作数。就拿算术表示`10 4 3 + 2 * -`举例， 第一个操作数是10。我们把它入栈。然后把数值4入栈，接着是数值3入栈。这是我们的堆栈看上去像这样：
+
 ![](/images/ch7/stack1.png)
 
 The next character to parse is a +. That one is a function of arity 2. In order to use it we will need to feed it two operands, which will be taken from the stack:
+
+下一个字符是`+`，这是两个参数的函数。为了使用它，必须提供给它两个操作数，所以，我们从堆栈中弹出两个操作数：
 
 ![](/images/ch7/stack2.png)
 
 So we take that 7 and push it back on top of the stack (yuck, we don't want to keep these filthy numbers floating around!) The stack is now [7,10] and what's left of the expression is 2 * -. We can take the 2 and push it on top of the stack. We then see *, which needs two operands to work. Again, we take them from the stack:
 
+所以，我们得到数值7，接着把它入栈(我不希望保持这些所有的数值)。堆栈现在有[7, 10]两个元素，剩下的表达式是：`2 * -`。然后把数值2入栈。然后接着是操作符`*`，它需要两个操作数，所以从堆栈中弹出两个元素：
+
 ![](/images/ch7/stack3.png)
 
 And push 14 back on top of our stack. All that remains is -, which also needs two operands. O Glorious luck! There are two operands left in our stack. Use them!
 
+然后又把结果入栈。 最后只剩下操作符`-`, 同样需要两个操作数。堆栈中刚好剩下两个参数。
+
 ![](/images/ch7/stack4.png)
 
-And so we have our result. This stack-based approach is relatively fool-proof and the low amount of parsing needed to be done before starting to calculate results explains why it was a good idea for old calculators to use this. There are other reasons to use RPN, but this is a bit out of the scope of this guide, so you might want to hit the Wikipedia article instead.
+And so we have our result. This stack-based approach is relatively fool-proof and the low amount of parsing needed to be done before starting to calculate results explains why it was a good idea for old calculators to use this. There are other reasons to use RPN, but this is a bit out of the scope of this guide, so you might want to hit the [Wikipedia article](http://en.wikipedia.org/wiki/Reverse_Polish_notation) instead.
 
-Writing this solution in Erlang is not too hard once we've done the complex stuff. It turns out the tough part is figuring out what steps need to be done in order to get our end result and we just did that. Neat. Open a file named calc.erl.
+最后我们得到了结果。这种基于堆栈的方式是十分安全的，在开始计算结果之前，不需要做太多的解析，这是为什么早期计算器采用他们的原因。还有另外一个采用它的原因， 但是他有点超出了本章的讨论范围，但是，你可以从[Wikipedia](http://en.wikipedia.org/wiki/Reverse_Polish_notation)获得更多更详细的信息。
+
+Writing this solution in Erlang is not too hard once we've done the complex stuff. It turns out the tough part is figuring out what steps need to be done in order to get our end result and we just did that. Neat. Open a file named [calc.erl](http://learnyousomeerlang.com/static/erlang/calc.erl).
+
+
 
 The first part to worry about is how we're going to represent a mathematical expression. To make things simple, we'll probably input them as a string: "10 4 3 + 2 * -". This string has whitespace, which isn't part of our problem-solving process, but is necessary in order to use a simple tokenizer. What would be usable then is a list of terms of the form ["10","4","3","+","2","*","-"] after going through the tokenizer. Turns out the function string:tokens/2 does just that:
 
@@ -171,7 +193,7 @@ One thing that could be done to make our calculator better would be to make sure
 Heathrow to London
 ---
 
-Our next problem is also taken from Learn You a Haskell. You're on a plane due to land at Heathrow airport in the next hours. You have to get to London as fast as possible; your rich uncle is dying and you want to be the first there to claim dibs on his estate.
+Our next problem is also taken from [Learn You a Haskell](http://learnyouahaskell.com/functionally-solving-problems#heathrow-to-london). You're on a plane due to land at Heathrow airport in the next hours. You have to get to London as fast as possible; your rich uncle is dying and you want to be the first there to claim dibs on his estate.
 
 There are two roads going from Heathrow to London and a bunch of smaller streets linking them together. Because of speed limits and usual traffic, some parts of the roads and smaller streets take longer to drive on than others. Before you land, you decide to maximize your chances by finding the optimal path to his house. Here's the map you've found on your laptop:
 
