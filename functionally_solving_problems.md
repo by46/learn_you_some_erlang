@@ -64,9 +64,12 @@ And so we have our result. This stack-based approach is relatively fool-proof an
 
 Writing this solution in Erlang is not too hard once we've done the complex stuff. It turns out the tough part is figuring out what steps need to be done in order to get our end result and we just did that. Neat. Open a file named [calc.erl](http://learnyousomeerlang.com/static/erlang/calc.erl).
 
+用Erlang完成这个解决方案不是太难， 因为我以前已经完成过更复杂的例子。但是，最难的是指出为了得到最后结果需要完成的步骤是什么？
 
 
 The first part to worry about is how we're going to represent a mathematical expression. To make things simple, we'll probably input them as a string: "10 4 3 + 2 * -". This string has whitespace, which isn't part of our problem-solving process, but is necessary in order to use a simple tokenizer. What would be usable then is a list of terms of the form ["10","4","3","+","2","*","-"] after going through the tokenizer. Turns out the function string:tokens/2 does just that:
+
+首先，需要考虑如何展现一个数学表达式。为了让事情变得简单，我们把他们当作字符串"10 4 3 + 2 * -"。该字符串包含空格，这些空格不是我们需要解决的问题的一部分，但是他们却都是必须的， 为了使用一个简单的词法分析器。当该字符串通过词法分析器之后，得到类似`["10","4","3","+","2","*","-"] `这样的列表。可以简单使用`string:tokens/2`函数：
 
 ``` erlang
 1> string:tokens("10 4 3 + 2 * -", " ").
@@ -74,6 +77,8 @@ The first part to worry about is how we're going to represent a mathematical exp
 ```
 
 That will be a good representation for our expression. The next part to define is the stack. How are we going to do that? You might have noticed that Erlang's lists act a lot like a stack. Using the cons (|) operator in [Head|Tail] effectively behaves the same as pushing Head on top of a stack (Tail, in this case). Using a list for a stack will be good enough.
+
+上面的代码对于我们的表达式工作的很好。那么，下一步需要定义的是栈结构。我该如何进行呢？你已经知道Erlang的列表的行为很像栈。使用链接符号以`[Head|Tail]`这样高效的方式就像是把`Head`元素压入一个栈(就如这个例子的Tail)。把列表当作列表使用就可以了。
 
 To read the expression, we just have to do the same as we did when solving the problem by hand. Read each value from the expression, if it's a number, put it on the stack. If it's a function, pop all the values it needs from the stack, then push the result back in. To generalize, all we need to do is go over the whole expression as a loop only once and accumulate the results. Sounds like the perfect job for a fold!
 
