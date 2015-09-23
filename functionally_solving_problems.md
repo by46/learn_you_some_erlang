@@ -82,9 +82,15 @@ That will be a good representation for our expression. The next part to define i
 
 To read the expression, we just have to do the same as we did when solving the problem by hand. Read each value from the expression, if it's a number, put it on the stack. If it's a function, pop all the values it needs from the stack, then push the result back in. To generalize, all we need to do is go over the whole expression as a loop only once and accumulate the results. Sounds like the perfect job for a fold!
 
+为了使程序能阅读表达式，我们只需要按照手动解决问题的步骤编写代码。从表达式中依次读取每个标记，如果标记是一个数值，那么就入栈该数值。如果是一个函数，就从栈中出栈需要的数值个数，然后把结果压回栈。为了得到结果，我们需要遍历整个表达式，直到获得结果。听上去，整个过程很像`fold`。
+
 What we need to plan for is the function that lists:foldl/3 will apply on every operator and operand of the expression. This function, because it will be run in a fold, will need to take two arguments: the first one will be the element of the expression to work with and the second one will be the stack.
 
+我们对表达式的每个操作数和操作符应用`lists:foldl/3`。该函数接受两个参数：表达式的token列表和堆栈。
+
 We can start writing our code in the calc.erl file. We'll write the function responsible for all the looping and also the removal of spaces in the expression:
+
+我们在calc.erl文件中编写自己的代码。我们编写负责所有循环和去除表达式中空格的函数：
 
 ``` erlang
 -module(calc).
@@ -97,10 +103,19 @@ rpn(L) when is_list(L) ->
 
 We'll implement rpn/2 next. Note that because each operator and operand from the expression ends up being put on top of the stack, the solved expression's result will be on that stack. We need to get that last value out of there before returning it to the user. This is why we pattern match over [Res] and only return Res.
 
+我们将在后面实现`rpn/2`函数。注意操作数和操作符的计算结果将会压入栈中，所以表达式最终计算结果被保存在栈中。所以，我们需要把栈中的最后的值作为结果返回给用户。这也是为什么使用`[Rest]`匹配模式，却只返回Res给用户的原因。
+
 Alright, now to the harder part. Our rpn/2 function will need to handle the stack for all values passed to it. The head of the function will probably look like rpn(Op,Stack) and its return value like [NewVal|Stack]. When we get regular numbers, the operation will be:
 
+现在我们来完成最难的部分。我们的`rpn/2`函数需要根据参数来操作栈。函数的定义部分看起会像这样`rpn(Op, Stack)` 然后像这样返回`[NewVal|Stack]` , 当我们接收到是正常的数字，那么操作会像这样：
+
+```
 rpn(X, Stack) -> [read(X)|Stack].
+```
+
 Here, read/1 is a function that converts a string to an integer or floating point value. Sadly, there is no built-in function to do this in Erlang (only one or the other). We'll add it ourselves:
+
+`read/1`函数把字符串转换为整型或者浮点型。遗憾的是， Erlang中并不包含类似的内建函数，所以我们自己实现了这个函数：
 
 ``` erlang
 read(N) ->
@@ -112,7 +127,11 @@ read(N) ->
 
 Where string:to_float/1 does the conversion from a string such as "13.37" to its numeric equivalent. However, if there is no way to read a floating point value, it returns {error,no_float}. When that happens, we need to call list_to_integer/1 instead.
 
+`string:to_float`把类似"13.37"的字符串转换为等价的数值。如果字符串不是合法的浮点数，它会返回`{error, no_float}`。如果字符串不是合法的浮点数，那么我们使用`list_to_integer/1`代替
+
 Now back to rpn/2. The numbers we encounter all get added to the stack. However, because our pattern matches on anything (see Pattern Matching), operators will also get pushed on the stack. To avoid this, we'll put them all in preceding clauses. The first one we'll try this with is the addition:
+
+现在我们回到`rpn/2`。现在函数把所有遇到的数值都添加到了栈中。但是，由于我们的模式会匹配任何东西，所以操作也被添加到了栈中。为避免这种情况，我们在这之前进行一些额外的匹配，首先是加法：
 
 ``` erlang
 rpn("+", [N1,N2|S]) -> [N2+N1|S];
@@ -120,6 +139,8 @@ rpn(X, Stack) -> [read(X)|Stack].
 ```
 
 We can see that whenever we encounter the "+" string, we take two numbers from the top of the stack (N1,N2) and add them before pushing the result back onto that stack. This is exactly the same logic we applied when solving the problem by hand. Trying the program we can see that it works:
+
+我们可以看到当遇到"+"字符串时，我们从栈顶取出两个数值进行相加，再把结果添加回栈中。和我们手动计算的逻辑一样。让我们验证一下它是否正常工作：
 
 ``` erlang
 1> c(calc).
@@ -131,6 +152,8 @@ We can see that whenever we encounter the "+" string, we take two numbers from t
 ```
 
 The rest is trivial, as you just need to add all the other operators:
+
+添加对其他操作符的支持：
 
 ``` erlang
 rpn("+", [N1,N2|S]) -> [N2+N1|S];
