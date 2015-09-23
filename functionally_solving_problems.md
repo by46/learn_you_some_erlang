@@ -62,7 +62,7 @@ And so we have our result. This stack-based approach is relatively fool-proof an
 
 最后我们得到了结果。这种基于堆栈的方式是十分安全的，在开始计算结果之前，不需要做太多的解析，这是为什么早期计算器采用他们的原因。还有另外一个采用它的原因， 但是他有点超出了本章的讨论范围，但是，你可以从[Wikipedia](http://en.wikipedia.org/wiki/Reverse_Polish_notation)获得更多更详细的信息。
 
-Writing this solution in Erlang is not too hard once we've done the complex stuff. It turns out the tough part is figuring out what steps need to be done in order to get our end result and we just did that. Neat. Open a file named [calc.erl](http://learnyousomeerlang.com/static/erlang/calc.erl).
+Writing this solution in Erlang is not too hard once we've done the complex stuff. It turns out the tough part is figuring out what steps need to be done in order to get our end result and we just did that. Neat. Open a file named [calc.erl](calc.erl).
 
 用Erlang完成这个解决方案不是太难， 因为我以前已经完成过更复杂的例子。但是，最难的是指出为了得到最后结果需要完成的步骤是什么？
 
@@ -88,9 +88,9 @@ What we need to plan for is the function that lists:foldl/3 will apply on every 
 
 我们对表达式的每个操作数和操作符应用`lists:foldl/3`。该函数接受两个参数：表达式的token列表和堆栈。
 
-We can start writing our code in the calc.erl file. We'll write the function responsible for all the looping and also the removal of spaces in the expression:
+We can start writing our code in the [calc.erl](calc.erl) file. We'll write the function responsible for all the looping and also the removal of spaces in the expression:
 
-我们在calc.erl文件中编写自己的代码。我们编写负责所有循环和去除表达式中空格的函数：
+我们在[calc.erl](calc.erl)文件中编写自己的代码。我们编写负责所有循环和去除表达式中空格的函数：
 
 ``` erlang
 -module(calc).
@@ -166,9 +166,13 @@ rpn("log10", [N|S]) -> [math:log10(N)|S];
 rpn(X, Stack) -> [read(X)|Stack].
 ```
 
-Note that functions that take only one argument such as logarithms only need to pop one element from the stack. It is left as an exercise to the reader to add functions such as 'sum' or 'prod' which return the sum of all the elements read so far or the products of them all. To help you out, they are implemented in my version of calc.erl already.
+Note that functions that take only one argument such as logarithms only need to pop one element from the stack. It is left as an exercise to the reader to add functions such as 'sum' or 'prod' which return the sum of all the elements read so far or the products of them all. To help you out, they are implemented in my version of [calc.erl](calc.erl) already.
+
+注意对于一些操作符例如求对数只会从堆栈中获取一个参数。对于其他更多操作符的支持就留给读者作为练习，例如例如求和和求积操作。 为了帮助你完成练习，在[calc.erl](calc.erl)中已经包含了一个我的实现版本。
 
 To make sure this all works fine, we'll write very simple unit tests. Erlang's = operator can act as an assertion function. Assertions should crash whenever they encounter unexpected values, which is exactly what we need. Of course, there are more advanced testing frameworks for Erlang, including Common Test and EUnit. We'll check them out later, but for now the basic = will do the job:
+
+为了确保函数正常工作，我们编写了一些非常简单的单元测试。Erlang的`=`操作符可以作为断言函数使用。不管什么时候遇到非预期值，断言都应该崩溃。当然Erlang有很多高级的测试框架，包括Common Test 和 EUnit。 我们将稍后介绍他们，不过现在基本的`=`已经能完成任务了：
 
 ``` erlang
 rpn_test() ->
