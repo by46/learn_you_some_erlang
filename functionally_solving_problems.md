@@ -239,11 +239,17 @@ Heathrow to London
 
 Our next problem is also taken from [Learn You a Haskell](http://learnyouahaskell.com/functionally-solving-problems#heathrow-to-london). You're on a plane due to land at Heathrow airport in the next hours. You have to get to London as fast as possible; your rich uncle is dying and you want to be the first there to claim dibs on his estate.
 
+我们的问题同样截取自[Learn You a Haskell](http://learnyouahaskell.com/functionally-solving-problems#heathrow-to-london)。接下来你乘坐的飞机将降落在希思罗机场。你需要尽快到达伦敦；你富有的叔叔去世了，你需要第一时间赶到现场，声称自己有权利继承他的房子。
+
 There are two roads going from Heathrow to London and a bunch of smaller streets linking them together. Because of speed limits and usual traffic, some parts of the roads and smaller streets take longer to drive on than others. Before you land, you decide to maximize your chances by finding the optimal path to his house. Here's the map you've found on your laptop:
+
+从希思罗到伦敦有两个路，两条路之间有很多街道相连。由于速度和交通拥堵，各个街道和道路行驶时间不一样。你要找出最优的行驶线路，地图如下：
 
 ![](/images/ch7/road1.png)
 
 Having become a huge fan of Erlang after reading online books, you decide to solve the problem using that language. To make it easier to work with the map, you enter data the following way in a file named road.txt:
+
+尝试用Erlang解决此问题。为了简化问题，按下列方式在road.txt文件中输入数据：
 
 ``` erlang
 50
