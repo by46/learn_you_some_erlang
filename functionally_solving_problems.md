@@ -198,6 +198,8 @@ rpn_test() ->
 
 The test function tries all operations; if there's no exception raised, the tests are considered successful. The first four tests check that the basic arithmetic functions work right. The fifth test specifies behaviour I have not explained yet. The try ... catch expects a badmatch error to be thrown because the expression can't work:
 
+测试函数测试了所有操作符；如果没有异常抛出就说明所有测试都通过。首先四个测试用例检查基本算术是否工作正常。第五个测试用例测试特定行为：
+
 ``` erlang
 90 34 12 33 55 66 + * - +
 90 (34 (12 (33 (55 66 +) *) -) +)
@@ -205,9 +207,15 @@ The test function tries all operations; if there's no exception raised, the test
 
 At the end of rpn/1, the values -3947 and 90 are left on the stack because there is no operator to work on the 90 that hangs there. Two ways to handle this problem are possible: either ignore it and only take the value on top of the stack (which would be the last result calculated) or crash because the arithmetic is wrong. Given Erlang's policy is to let it crash, it's what was chosen here. The part that actually crashes is the [Res] in rpn/1. That one makes sure only one element, the result, is left in the stack.
 
+在`rpn/1`的结束时， 栈中还剩下数值-3947和90，因为已经没有操作符。有两个可行的方式：忽略错误，只返回栈顶数值；简单crash，因为算术表达式错误了。已知的Erlang策略师让它崩溃，就是我们这里采用的策略。在`rpn/1`函数中`[Res]`代码导致了崩溃。它是为了确保栈中只有一个元素，计算结果就是列表中唯一值。
+
 The few tests that are of the form true = FunctionCall1 == FunctionCall2 are there because you can't have a function call on the left hand side of =. It still works like an assert because we compare the comparison's result to true.
 
+测试代码中有一些型如`true=FunctionCall1 == FunctionCall2`的代码，因为函数调用不能作为左值。它能像断言一样工作。
+
 I've also added the test cases for the sum and prod operators so you can exercise yourselves implementing them. If all tests are successful, you should see the following:
+
+我同样添加了针对sum和prod操作符的测试代码，所以你可以作为练习来实现它们，只要所有测试都通过，你可能就会看到如下的输出：
 
 ``` erlang
 1> c(calc).
@@ -220,7 +228,11 @@ ok
 
 Where 28 is indeed equal to sum(1² + 2² + 3² + 4²) - 2. Try as many of them as you wish.
 
+28 等于 sum(1² + 2² + 3² + 4²) - 2。你可以任意尝试。
+
 One thing that could be done to make our calculator better would be to make sure it raises badarith errors when it crashes because of unknown operators or values left on the stack, rather than our current badmatch error. It would certainly make debugging easier for the user of the calc module.
+
+为了让我们的计算器表现的更好，当遇到未知操作符或者栈中包含多余的数值，我们的计算器应到抛出badarith错误，而不是badmatch错误。因为badarith异常更易于调试。
 
 Heathrow to London
 ---
