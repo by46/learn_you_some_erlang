@@ -268,13 +268,21 @@ Having become a huge fan of Erlang after reading online books, you decide to sol
 
 The road is laid in the pattern: A1, B1, X1, A2, B2, X2, ..., An, Bn, Xn, where X is one of the roads joining the A side to the B side of the map. We insert a 0 as the last X segment, because no matter what we do we're at our destination already. Data can probably be organized in tuples of 3 elements (triples) of the form {A,B,X}.
 
+公路按照这样的模式排列：A1, B1, X1, A2, B2, X2, ..., An, Bn, Xn, X代表连接A和B的街道。因为最后我们已经到达目的地，我们插入0作为最后一条横街，这样不会影响最后的结果。这样就能很好的以三个元素为单位组织数据，型如这样：{A, B, X}。
+
 The next thing you realize is that it's worth nothing to try to solve this problem in Erlang when you don't know how to solve it by hand to begin with. In order to do this, we'll use what recursion taught us.
 
+你需要知道，如果你不知道怎样手工解决该问题，急匆匆用Erlang解决它只会事得其反。但是我们能从递归中得到启发。
+
 When writing a recursive function, the first thing to do is to find our base case. For our problem at hand, this would be if we had only one tuple to analyze, that is, if we only had to choose between A, B (and crossing X, which in this case is useless because we're at destination):
+
+当我们编写递归函数时，首先找到base case。对于手工解决问题，base case是只有一个元组的情况，这样我们只需要从A和B中进行选择。
 
 ![](/images/ch7/road2.png)
 
 Then the choice is only between picking which of path A or path B is the shortest. If you've learned your recursion right, you know that we ought to try and converge towards the base case. This means that on each step we'll take, we'll want to reduce the problem to choosing between A and B for the next step.
+
+
 
 Let's extend our map and start over:
 
